@@ -1058,15 +1058,18 @@
     const traitLabels = state.traits.map((traitId) => getTraitById(traitId)?.label).filter(Boolean).join(" and ") || "Your chosen traits";
     const itemLabels = state.inventory.map((itemId) => getItemById(itemId)?.label).filter(Boolean).join(" and ") || "your equipment";
     const recommendation = VERDICT_TEMPLATES.recommendations[topCause.id];
-    const companionLine = companion ? `${companion.label} gives you ${companionEffects.sameWorld ? "native-world chemistry" : "a risky cross-world partnership"}.` : "Without a reliable companion, every mistake lands harder.";
+    const companionLine = companion ? `${companion.label} grants you ${companionEffects.sameWorld ? "native-world advantage and trust" : "cross-world liability"}.` : "Without a companion, you carry every burden alone.";
     const charName = state.character.name ? state.character.name : "Vault Dweller";
-    const ageContext = state.character.age < 25 ? "young and less tested" : state.character.age > 35 ? "seasoned but slowing" : "at your peak";
+    const ageContext = state.character.age < 25 ? "young and untested" : state.character.age > 35 ? "seasoned but slowing down" : "at peak years";
+    const statGap = state.stats[highestStat.id] - state.stats[lowestStat.id];
+    const balanceNote = statGap > 4 ? "Your extremes are severe—specialized but vulnerable." : "Your spread is relatively balanced.";
+    const decayNote = oneYear < 40 ? "Your odds crater in year one—this build doesn't age well." : "You hold reasonable odds even at one year.";
     return [
       `${charName}, ${scoreBand.intro.toLowerCase()}`,
-      `At ${ageContext}, you rely heavily on your ${highestStat.label} (${state.stats[highestStat.id]}), but your ${lowestStat.label} (${state.stats[lowestStat.id]}) is where the wasteland will exploit you. You play like a ${style}, so lean into ${strongestCategory} and avoid ${weakestCategory}.`,
+      `${ageContext.charAt(0).toUpperCase() + ageContext.slice(1)}, your ${highestStat.label} (${state.stats[highestStat.id]}) is the pillar holding this build up. But your ${lowestStat.label} (${state.stats[lowestStat.id]}) is the exact crack the wasteland exploits. ${balanceNote} You play like a ${style}, so lean hard into ${strongestCategory}; ${weakestCategory} will break you.`,
       `${companionLine} ${toneLine}`,
-      `With ${traitLabels} and ${itemLabels}, combined with your survival decisions, you have a ${firstMonth}% shot in month one, ${thirdMonth}% by month three, and ${oneYear}% at one year.`,
-      `The biggest threat is ${topCause.label.toLowerCase()}. Your build feels fragile there. Expect to survive around ${lifespan.text}, possibly ${lifespan.bestCaseText} if discipline holds. Recommendation: ${recommendation}`,
+      `Your traits (${traitLabels}) and gear (${itemLabels}) are chosen. Month one you have ${firstMonth}% odds. By month three, ${thirdMonth}%. By year end, ${oneYear}%. ${decayNote}`,
+      `${topCause.label} is your apex predator. The wasteland will test you there, and you'll fail if caught unprepared. Lifespan: ~${lifespan.text}, best case ~${lifespan.bestCaseText}. ${recommendation}`,
     ].join(" ");
   }
 
@@ -1526,36 +1529,50 @@
 <title>Wasteland Survival Calculator PDF</title>
 <style>
   body { margin: 0; font-family: Arial, sans-serif; background: #100902; color: #ffd59f; font-size: 13px; }
-  .page { width: 210mm; max-width: 100%; padding: 18px; box-sizing: border-box; }
-  .card { max-width: 100%; margin: auto; padding: 18px; border-radius: 20px; background: #120b03; border: 1px solid rgba(255,144,0,.25); }
-  .header { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
-  .header h1 { margin: 0; font-size: 1.8rem; letter-spacing: .08em; }
-  .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 18px 0; }
-  .metric { padding: 12px; border-radius: 16px; background: rgba(255,144,0,.08); border: 1px solid rgba(255,144,0,.18); }
-  .metric strong { display: block; font-size: 1.35rem; margin-top: 6px; color: #ffb56b; }
-  .section { margin-top: 18px; }
-  .section h2 { margin: 0 0 10px; font-size: 1.05rem; color: #ffb56b; }
-  .section p, .section li { line-height: 1.5; }
-  .table-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 18px; }
-  .table-card { padding: 16px; border-radius: 16px; background: rgba(255,144,0,.05); border: 1px solid rgba(255,144,0,.12); }
-  table { width: 100%; border-collapse: collapse; }
-  th, td { padding: 10px 8px; border-bottom: 1px solid rgba(255,144,0,.12); text-align: left; vertical-align: top; }
+  .page { width: 210mm; max-width: 100%; padding: 12px; box-sizing: border-box; }
+  .card { max-width: 100%; margin: auto; padding: 14px; border-radius: 16px; background: #120b03; border: 1px solid rgba(255,144,0,.25); }
+  .header { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 16px; }
+  .header h1 { margin: 0; font-size: 1.6rem; letter-spacing: .08em; }
+  .header p { margin: 4px 0; font-size: 0.9rem; }
+  .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 16px 0 20px 0; }
+  .metric { padding: 11px; border-radius: 14px; background: rgba(255,144,0,.08); border: 1px solid rgba(255,144,0,.18); text-align: center; }
+  .metric strong { display: block; font-size: 1.28rem; margin-top: 6px; color: #ffb56b; }
+  .metric small { color: #999; font-size: 0.8rem; }
+  .section { margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(255,144,0,.15); }
+  .section:first-of-type { margin-top: 0; padding-top: 0; border-top: none; }
+  .section h2 { margin: 0 0 12px 0; font-size: 1rem; color: #ffb56b; text-transform: uppercase; letter-spacing: 0.06em; }
+  .section p { line-height: 1.6; margin: 0; }
+  .table-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 14px; }
+  .table-card { padding: 12px; border-radius: 12px; background: rgba(255,144,0,.05); border: 1px solid rgba(255,144,0,.12); }
+  .table-card h2 { font-size: 0.95rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  th, td { padding: 9px 6px; border-bottom: 1px solid rgba(255,144,0,.1); text-align: left; }
   th { color: #ffb56b; font-weight: 700; font-size: 0.95rem; }
   td { color: #fff; font-size: 0.92rem; }
   .cause-label { display: block; }
   .cause-value { color: #ffb56b; font-weight: 700; }
   .list { display: none; }
   @media print {
-    @page { size: A4 portrait; margin: 10mm; }
+    @page { size: A4 portrait; margin: 9mm; orphans: 3; widows: 3; }
     html, body { width: 210mm; height: 297mm; margin: 0; padding: 0; }
-    body { background: white; color: black; font-size: 12px; }
-    .page { padding: 6px; }
-    .card { background: white; border-color: #ccc; box-shadow: none; padding: 12px; }
-    .header { gap: 10px; }
-    .header h1 { font-size: 1.4rem; }
-    .metrics { gap: 8px; margin: 12px 0; }
-    .section { page-break-inside: avoid; margin-top: 12px; }
-    .metric, .section, .list li { break-inside: avoid; }
+    body { background: white; color: black; font-size: 11px; }
+    .page { padding: 5px; }
+    .card { background: white; border-color: #999; padding: 10px; }
+    .header { margin-bottom: 12px; }
+    .header h1 { font-size: 1.3rem; }
+    .header p { font-size: 0.85rem; }
+    .metrics { gap: 8px; margin: 12px 0 16px; }
+    .metric { padding: 9px; font-size: 0.9rem; }
+    .metric strong { font-size: 1.1rem; }
+    .section { margin-top: 14px; padding-top: 10px; }
+    .section h2 { font-size: 0.9rem; margin-bottom: 8px; }
+    .section p { line-height: 1.5; }
+    .table-grid { gap: 12px; margin-top: 12px; }
+    .table-card { padding: 10px; }
+    .table-card h2 { font-size: 0.9rem; margin: 0 0 8px; }
+    table { font-size: 0.85rem; }
+    th, td { padding: 7px 5px; }
+    .table-grid, .section, .metric { break-inside: avoid; }
   }
 </style>
 </head>
@@ -1580,7 +1597,7 @@
     </div>
     <div class="section">
       <h2>Summary</h2>
-      <p style="font-size:1.1rem;line-height:1.7;">${escapeHtml(result.verdict)}</p>
+      <p style="font-size:1.05rem;line-height:1.65;margin:0;">${escapeHtml(result.verdict)}</p>
     </div>
     <div class="table-grid">
       <div class="table-card">
