@@ -1675,6 +1675,13 @@
       if (isPristineState(this.state)) {
         previewResult.finalChance = 50;
         previewResult.tier = getSurvivalTier(previewResult.finalChance);
+        previewResult.finalBuckets = { combat: 50, stealth: 50, diplomacy: 50, scavenging: 50, luck: 50 };
+        previewResult.answerProfile = {
+          totals: { combat: 0, stealth: 0, diplomacy: 0, scavenging: 0, luck: 0 },
+          buckets: { combat: 50, stealth: 50, diplomacy: 50, scavenging: 50, luck: 50 },
+          answerQuality: 0,
+          chosenLabels: [],
+        };
         previewResult.lifespan = calculateProjectedLifespan(previewResult.finalChance, this.state, previewResult.finalBuckets, getScenarioById(this.state.scenarioId));
       }
       const result = this.state.currentStep === 4 ? calculateResult(this.state) : previewResult;
