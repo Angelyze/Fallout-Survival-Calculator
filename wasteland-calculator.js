@@ -773,9 +773,9 @@
   function calculateBaseStatScore(stats) {
     const totalWeight = SPECIAL_STATS.reduce((sum, stat) => sum + stat.weight, 0);
     const weightedTotal = SPECIAL_STATS.reduce((sum, stat) => sum + stats[stat.id] * stat.weight, 0);
-    // Map average SPECIAL so that the default build (~5 average) centers on 50%.
-    // Using divisor 8 makes average 5 => 50, while still mapping 1->0 and 10->~100 (clamped).
-    return clamp((((weightedTotal / totalWeight) - 1) / 8) * 100, 0, 100);
+    // Map average SPECIAL so that the default build (~5 average) centers on a more punishing 45%.
+    // Using divisor 9 makes average 5 => ~44.4, while still mapping 1->0 and 10->~100 (clamped).
+    return clamp((((weightedTotal / totalWeight) - 1) / 9) * 100, 0, 100);
   }
 
   function calculateBuildBuckets(stats) {
@@ -905,12 +905,13 @@
     const ageMultiplier = clamp(1.02 - Math.abs(age - 30) / 120, 0.85, 1.08);
     const sexMultiplier = SEX_OPTIONS.find((option) => option.id === state.character.sex)?.scoreMultiplier || 1;
     const scenarioMultiplier = scenario ? scenario.difficultyMultiplier : 1;
-    const rawBuild = 38 + (baseScore - 50) * 0.42 + companionEffects.scoreDelta * 0.8 + traitEffects.scoreDelta * 0.85 + inventoryEffects.scoreDelta * 0.8 + questionEffects.scoreDelta * 0.75;
-    const baseChance = clamp(Math.round(rawBuild * ageMultiplier * sexMultiplier * scenarioMultiplier * 0.92), 5, 98);
-    const riskBuffer = Math.max(0, 32 - questionEffects.answerQuality * 2.5 - (finalBuildBuckets.luck / 2));
-    const firstMonth = clamp(Math.round(baseChance + 2 - riskBuffer * 0.4), 5, 99);
-    const thirdMonth = clamp(Math.round(baseChance - 2 - riskBuffer * 0.25), 3, 98);
-    const oneYear = clamp(Math.round(baseChance - 12 - riskBuffer * 0.15), 1, 95);
+    const rawBuild = 32 + (baseScore - 50) * 0.38 + companionEffects.scoreDelta * 0.7 + traitEffects.scoreDelta * 0.8 + inventoryEffects.scoreDelta * 0.7 + questionEffects.scoreDelta * 0.65;
+    const baseChance = clamp(Math.round(rawBuild * ageMultiplier * sexMultiplier * scenarioMultiplier * 0.88), 5, 98);
+    const riskBuffer = Math.max(0, 34 - questionEffects.answerQuality * 2.5 - (finalBuildBuckets.luck / 1.8));
+    const firstMonth = clamp(Math.round(baseChance + 1 - riskBuffer * 0.45), 5, 99);
+    const thirdMonth = clamp(Math.round(baseChance - 6 - riskBuffer * 0.3), 3, 98);
+    const oneYear = clamp(Math.round(baseChance - 16 - riskBuffer * 0.2), 1, 95);
+    const finalChance = Math.round((firstMonth + thirdMonth + oneYear) / 3);
     const answerProfile = calculateAnswerProfile(state);
     const strongestCategory = pickBestCategory(finalBuildBuckets);
     const weakestCategory = pickWorstCategory(finalBuildBuckets);
@@ -938,6 +939,7 @@
       topCause,
       tier: getSurvivalTier(Math.round((firstMonth + thirdMonth + oneYear) / 3)),
       lifespan,
+      finalChance,
       verdict: generateVerdict({ state, scenario, companion, highestStat, lowestStat, strongestCategory, weakestCategory, topCause, firstMonth, thirdMonth, oneYear, companionEffects, answerProfile, lifespan }),
     };
   }
@@ -1532,8 +1534,15 @@
   .section { margin-top: 18px; }
   .section h2 { margin: 0 0 10px; font-size: 1.05rem; color: #ffb56b; }
   .section p, .section li { line-height: 1.5; }
-  .list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
-  .list li { background: rgba(255,144,0,.05); padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(255,144,0,.12); }
+  .table-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 18px; }
+  .table-card { padding: 16px; border-radius: 16px; background: rgba(255,144,0,.05); border: 1px solid rgba(255,144,0,.12); }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 10px 8px; border-bottom: 1px solid rgba(255,144,0,.12); text-align: left; vertical-align: top; }
+  th { color: #ffb56b; font-weight: 700; font-size: 0.95rem; }
+  td { color: #fff; font-size: 0.92rem; }
+  .cause-label { display: block; }
+  .cause-value { color: #ffb56b; font-weight: 700; }
+  .list { display: none; }
   @media print {
     @page { size: A4 portrait; margin: 16mm; }
     html, body { width: 210mm; height: 297mm; margin: 0; padding: 0; }
@@ -1570,17 +1579,23 @@
       <h2>Summary</h2>
       <p>${escapeHtml(result.verdict)}</p>
     </div>
-    <div class="section">
-      <h2>Key stats</h2>
-      <ul class="list">
-        ${SPECIAL_STATS.map((stat) => `<li><strong>${stat.label}</strong>: ${this.state.stats[stat.id]}</li>`).join("")}
-      </ul>
-    </div>
-    <div class="section">
-      <h2>Cause of failure</h2>
-      <ul class="list">
-        ${((result.deathBreakdown || result.causeResult || [])).map((slice) => `<li><strong>${slice.percentage}%</strong> ${escapeHtml(slice.label)}</li>`).join("")}
-      </ul>
+    <div class="table-grid">
+      <div class="table-card">
+        <h2>Key stats</h2>
+        <table>
+          <tbody>
+            ${SPECIAL_STATS.map((stat) => `<tr><th>${escapeHtml(stat.label)}</th><td>${this.state.stats[stat.id]}</td></tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+      <div class="table-card">
+        <h2>Cause of failure</h2>
+        <table>
+          <tbody>
+            ${((result.deathBreakdown || result.causeResult || [])).map((slice) => `<tr><th class="cause-label">${escapeHtml(slice.label)}</th><td class="cause-value">${slice.percentage}%</td></tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
     </div>
     <div class="section">
       <h2>Recommendations</h2>
@@ -1793,6 +1808,7 @@
             </label>
           `).join("")}
         </div>
+        <div class="wc-step-head" style="margin-top:22px;"><div><div class="wc-step-tag">Challenges</div><h3 class="wc-step-title">Answer the survival challenges.</h3><p class="wc-step-copy">These questions determine the most dangerous aspects of your build for the chosen wasteland.</p></div></div>
         <div class="wc-questions">
           ${questions.map((question, index) => `
             <article class="wc-question-card">
