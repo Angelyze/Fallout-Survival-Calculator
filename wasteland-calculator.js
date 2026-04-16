@@ -1521,20 +1521,31 @@
 <meta charset="UTF-8">
 <title>Wasteland Survival Calculator PDF</title>
 <style>
-  body { margin: 0; font-family: Arial, sans-serif; background: #100902; color: #ffd59f; }
-  .page { width: 100%; padding: 28px; box-sizing: border-box; }
-  .card { max-width: 920px; margin: auto; padding: 28px; border-radius: 24px; background: #120b03; border: 1px solid rgba(255,144,0,.25); }
-  .header { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 24px; }
-  .header h1 { margin: 0; font-size: 2.2rem; letter-spacing: .08em; }
-  .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin: 24px 0; }
-  .metric { padding: 16px; border-radius: 16px; background: rgba(255,144,0,.08); border: 1px solid rgba(255,144,0,.18); }
-  .metric strong { display: block; font-size: 1.6rem; margin-top: 8px; color: #ffb56b; }
-  .section { margin-top: 24px; }
-  .section h2 { margin: 0 0 12px; font-size: 1.2rem; color: #ffb56b; }
-  .section p, .section li { line-height: 1.6; }
+  body { margin: 0; font-family: Arial, sans-serif; background: #100902; color: #ffd59f; font-size: 13px; }
+  .page { width: 210mm; max-width: 100%; padding: 18px; box-sizing: border-box; }
+  .card { max-width: 100%; margin: auto; padding: 18px; border-radius: 20px; background: #120b03; border: 1px solid rgba(255,144,0,.25); }
+  .header { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+  .header h1 { margin: 0; font-size: 1.8rem; letter-spacing: .08em; }
+  .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 18px 0; }
+  .metric { padding: 12px; border-radius: 16px; background: rgba(255,144,0,.08); border: 1px solid rgba(255,144,0,.18); }
+  .metric strong { display: block; font-size: 1.35rem; margin-top: 6px; color: #ffb56b; }
+  .section { margin-top: 18px; }
+  .section h2 { margin: 0 0 10px; font-size: 1.05rem; color: #ffb56b; }
+  .section p, .section li { line-height: 1.5; }
   .list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
-  .list li { background: rgba(255,144,0,.05); padding: 14px 16px; border-radius: 14px; border: 1px solid rgba(255,144,0,.12); }
-  @media print { body { background: white; color: black; } .card { background: white; border-color: #ccc; } }
+  .list li { background: rgba(255,144,0,.05); padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(255,144,0,.12); }
+  @media print {
+    @page { size: A4 portrait; margin: 16mm; }
+    html, body { width: 210mm; height: 297mm; margin: 0; padding: 0; }
+    body { background: white; color: black; font-size: 12px; }
+    .page { padding: 12px; }
+    .card { background: white; border-color: #ccc; box-shadow: none; }
+    .header { gap: 14px; }
+    .header h1 { font-size: 1.6rem; }
+    .metrics { gap: 10px; margin: 16px 0; }
+    .section { page-break-inside: avoid; }
+    .metric, .section, .list li { break-inside: avoid; }
+  }
 </style>
 </head>
 <body>
@@ -1886,7 +1897,7 @@
             <h2 class="wc-title">${escapeHtml(this.config.title)}</h2>
             <p class="wc-subtitle">Build your own vault-born survivor, throw them into a real Fallout scenario, and get a brutally personal survival verdict powered by transparent math instead of randomness.</p>
           </div>
-          ${this.state.currentStep === 3 ? `<aside class="wc-status" aria-label="Current run status"><small>Projected survival</small><strong>${previewResult.finalChance}%</strong><div>${escapeHtml(previewResult.tier)} in ${escapeHtml(previewResult.scenario.label)}</div></aside>` : ''}
+          ${this.state.currentStep === 3 ? `<aside class="wc-status" aria-label="Current run status"><small>Projected survival</small><strong>${result.finalChance}%</strong><div>${escapeHtml(result.tier)} in ${escapeHtml(result.scenario?.label || "Unknown")}</div></aside>` : ''}
         </header>
         <section class="wc-progress" aria-label="Wizard progress"><div class="wc-progress-row"><span>Step ${this.state.currentStep}/3</span><span>${escapeHtml(this.getStepLabel())}</span></div><div class="wc-progress-track"><div class="wc-progress-fill" style="width:${(this.state.currentStep / 3) * 100}%"></div></div></section>
         <div class="wc-layout">
