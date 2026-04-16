@@ -630,6 +630,7 @@
       companionId: "",
       inventory: [],
       answers: {},
+      companionFilter: "",
       showMath: false,
       flash: "",
     };
@@ -1592,7 +1593,6 @@
       const button = event.target.closest("[data-action]");
       if (!button) return;
       const action = button.getAttribute("data-action");
-      console.log('handleClick called', action);
       if (action === "back") {
         this.patchState({ currentStep: clamp(this.state.currentStep - 1, 1, 4), flash: "" });
       } else if (action === "next") {
