@@ -1592,6 +1592,7 @@
       const button = event.target.closest("[data-action]");
       if (!button) return;
       const action = button.getAttribute("data-action");
+      console.log('handleClick called', action);
       if (action === "back") {
         this.patchState({ currentStep: clamp(this.state.currentStep - 1, 1, 4), flash: "" });
       } else if (action === "next") {
@@ -1881,7 +1882,7 @@
             <h2 class="wc-title">${escapeHtml(this.config.title)}</h2>
             <p class="wc-subtitle">Build your own vault-born survivor, throw them into a real Fallout scenario, and get a brutally personal survival verdict powered by transparent math instead of randomness.</p>
           </div>
-          <aside class="wc-status" aria-label="Current run status"><small>Projected survival</small><strong>${previewResult.finalChance}%</strong><div>${escapeHtml(previewResult.tier)} in ${escapeHtml(previewResult.scenario.label)}</div></aside>
+          ${this.state.currentStep === 3 ? `<aside class="wc-status" aria-label="Current run status"><small>Projected survival</small><strong>${previewResult.finalChance}%</strong><div>${escapeHtml(previewResult.tier)} in ${escapeHtml(previewResult.scenario.label)}</div></aside>` : ''}
         </header>
         <section class="wc-progress" aria-label="Wizard progress"><div class="wc-progress-row"><span>Step ${this.state.currentStep}/3</span><span>${escapeHtml(this.getStepLabel())}</span></div><div class="wc-progress-track"><div class="wc-progress-fill" style="width:${(this.state.currentStep / 3) * 100}%"></div></div></section>
         <div class="wc-layout">
