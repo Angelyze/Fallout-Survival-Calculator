@@ -587,6 +587,18 @@
     };
   }
 
+  function isPristineState(state) {
+    if (!state) return false;
+    if (state.perks && state.perks.length > 0) return false;
+    if (state.companionId) return false;
+    if (Object.keys(state.answers || {}).length > 0) return false;
+    if (state.currentStep !== 1) return false;
+    for (const stat of SPECIAL_STATS) {
+      if (state.stats[stat.id] !== stat.baseValue) return false;
+    }
+    return true;
+  }
+
   function getScenarioById(id) {
     return SCENARIOS.find((scenario) => scenario.id === id) || null;
   }
@@ -658,7 +670,9 @@
   function calculateBaseStatScore(stats) {
     const totalWeight = SPECIAL_STATS.reduce((sum, stat) => sum + stat.weight, 0);
     const weightedTotal = SPECIAL_STATS.reduce((sum, stat) => sum + stats[stat.id] * stat.weight, 0);
-    return clamp((((weightedTotal / totalWeight) - 1) / 9) * 100, 0, 100);
+    // Map average SPECIAL so that the default build (~5 average) centers on 50%.
+    // Using divisor 8 makes average 5 => 50, while still mapping 1->0 and 10->~100 (clamped).
+    return clamp((((weightedTotal / totalWeight) - 1) / 8) * 100, 0, 100);
   }
 
   function calculateBuildBuckets(stats) {
@@ -953,6 +967,25 @@
         if (Number.isFinite(value)) next.stats[stat.id] = clamp(Math.round(value), stat.min, stat.max);
       }
     }
+    // Ensure total SPECIAL points do not exceed the allowed total (45).
+    const currentTotal = sumValues(next.stats);
+    if (currentTotal > 45) {
+      let excess = currentTotal - 45;
+      while (excess > 0) {
+        let candidate = null;
+        let candidateVal = -Infinity;
+        for (const stat of SPECIAL_STATS) {
+          const val = next.stats[stat.id];
+          if (val > stat.min && val > candidateVal) {
+            candidate = stat.id;
+            candidateVal = val;
+          }
+        }
+        if (!candidate) break;
+        next.stats[candidate] = Math.max(SPECIAL_STATS.find((s) => s.id === candidate).min, next.stats[candidate] - 1);
+        excess--;
+      }
+    }
     if (Array.isArray(raw.p)) next.perks = raw.p.filter((id) => getPerkById(id)).slice(0, 2);
     if (typeof raw.sc === "string" && getScenarioById(raw.sc)) next.scenarioId = raw.sc;
     if (typeof raw.c === "string" && getCompanionById(raw.c)) next.companionId = raw.c;
@@ -1200,7 +1233,14 @@
         const statId = target.getAttribute("data-stat-id");
         const stat = SPECIAL_STATS.find((item) => item.id === statId);
         if (!stat) return;
-        const nextStats = { ...this.state.stats, [statId]: clamp(Number(target.value), stat.min, stat.max) };
+        const desired = Number(target.value);
+        const currentSum = sumValues(this.state.stats);
+        const currentValue = Number(this.state.stats[statId] || 0);
+        const otherSum = currentSum - currentValue;
+        const maxAllowedForThis = Math.min(stat.max, 45 - otherSum);
+        const allowedMax = Math.max(stat.min, maxAllowedForThis);
+        const finalValue = clamp(Math.round(desired), stat.min, allowedMax);
+        const nextStats = { ...this.state.stats, [statId]: finalValue };
         this.patchState({ stats: nextStats, flash: "" });
         return;
       }
@@ -1530,8 +1570,8 @@
               <p><strong>${escapeHtml(question.prompt)}</strong></p>
               <div class="wc-answer-list" role="radiogroup" aria-label="${escapeHtml(question.prompt)}">
                 ${question.choices.map((choice, choiceIndex) => `
-                  <label class="wc-answer">
-                    <input type="radio" name="${question.id}" value="${choiceIndex}" data-question-id="${question.id}" ${this.state.answers[question.id] === choiceIndex ? "checked" : ""} />
+                  <label class="wc-answer" for="wc-${slugify(question.id)}-${choiceIndex}">
+                    <input id="wc-${slugify(question.id)}-${choiceIndex}" type="radio" name="wc-${slugify(question.id)}" value="${choiceIndex}" data-question-id="${question.id}" ${this.state.answers[question.id] === choiceIndex ? "checked" : ""} />
                     <span class="wc-answer-option">${escapeHtml(choice.label)}</span>
                   </label>
                 `).join("")}
@@ -1600,7 +1640,14 @@
       }
       const root = this.root.querySelector(".wc-root");
       if (!root) return;
-      const previewResult = calculateResult({ ...this.state, answers: fillMissingAnswers(this.state) });
+      // Use actual state for preview (do not auto-fill answers). If the UI is untouched,
+      // show a neutral 50% baseline so users see a clear starting point.
+      const previewResult = calculateResult(this.state);
+      if (isPristineState(this.state)) {
+        previewResult.finalChance = 50;
+        previewResult.tier = getSurvivalTier(previewResult.finalChance);
+        previewResult.lifespan = calculateProjectedLifespan(previewResult.finalChance, this.state, previewResult.finalBuckets, getScenarioById(this.state.scenarioId));
+      }
       const result = this.state.currentStep === 4 ? calculateResult(this.state) : previewResult;
       const completionKey = `${result.finalChance}:${this.state.scenarioId}:${this.state.companionId}:${JSON.stringify(this.state.answers)}`;
       if (this.state.currentStep === 4 && this.lastCompletionKey !== completionKey && typeof this.config.onComplete === "function") {
