@@ -1621,7 +1621,7 @@
     </div>
     <div class="section">
       <h2>Recommendations</h2>
-      <p style="font-size:1.05rem;line-height:1.65;margin:0;">${escapeHtml(result.verdict.split("Recommendation:").pop().trim())}</p>
+      <p style="font-size:1rem;line-height:1.65;margin:0;">${escapeHtml(result.verdict.split("Recommendation:").pop().trim())}</p>
     </div>
     <div class="made-by" style="text-align: center; margin-top: 20px; font-size: 0.8rem; color: #999;">Made by Angelyze for fallouthub.blog</div>
   </div>
