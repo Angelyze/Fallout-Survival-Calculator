@@ -591,7 +591,12 @@
     if (!state) return false;
     if (state.perks && state.perks.length > 0) return false;
     if (state.companionId) return false;
-    if (Object.keys(state.answers || {}).length > 0) return false;
+    // Treat an answers object that only contains zeros as still pristine
+    const ansKeys = Object.keys(state.answers || {});
+    if (ansKeys.length > 0) {
+      const anyNonZero = ansKeys.some((k) => Number(state.answers[k]) !== 0);
+      if (anyNonZero) return false;
+    }
     if (state.currentStep !== 1) return false;
     for (const stat of SPECIAL_STATS) {
       if (state.stats[stat.id] !== stat.baseValue) return false;
@@ -998,6 +1003,11 @@
         }
       }
     }
+    // If the incoming answers object only contains zeros, treat it as absent
+    if (Object.keys(next.answers).length > 0) {
+      const anyNonZero = Object.values(next.answers).some((v) => Number(v) !== 0);
+      if (!anyNonZero) next.answers = {};
+    }
     const rawStep = raw.currentStep ? clamp(Number(raw.currentStep) || 1, 1, 4) : 1;
     next.showMath = typeof raw.showMath === "boolean" ? raw.showMath : next.showMath;
     // If the incoming state is effectively pristine (no meaningful choices made),
@@ -1071,6 +1081,7 @@
       .wc-stat-value{font-size:1.35rem}
       .wc-range{width:100%;accent-color:var(--wc-accent);margin-top:12px}
       .wc-perk{position:relative;display:block}
+      .wc-answer{position:relative;display:block}
       .wc-perk input,.wc-answer input{position:absolute;opacity:0;inset:0}
       .wc-perk-card,.wc-answer-option{display:block;width:100%;padding:14px 16px;border-radius:14px;border:1px solid var(--wc-border);background:rgba(255,144,0,.04);color:var(--wc-text);transition:transform .18s ease,border-color .18s ease,background .18s ease;cursor:pointer}
       .wc-perk input:checked + .wc-perk-card,.wc-answer input:checked + .wc-answer-option,.wc-answer-option:hover,.wc-button:hover:not(:disabled){transform:translateY(-1px);border-color:rgba(255,144,0,.42);background:rgba(255,144,0,.12)}
@@ -1713,6 +1724,12 @@
       buildDefaultState,
       sanitizeIncomingState,
       fillMissingAnswers,
+      // Expose slugify and a small renderer for testing question HTML in Node
+      slugify,
+      renderQuestionsHtmlForState(state) {
+        const questions = getQuestionSet(state.scenarioId);
+        return questions.map((question, index) => `\n          <article class="wc-question-card">\n            <div class="wc-question-count">Question ${index + 1}</div>\n            <p><strong>${escapeHtml(question.prompt)}</strong></p>\n            <div class="wc-answer-list" role="radiogroup" aria-label="${escapeHtml(question.prompt)}">\n              ${question.choices.map((choice, choiceIndex) => `\n                <label class="wc-answer" for="wc-${slugify(question.id)}-${choiceIndex}">\n                  <input id="wc-${slugify(question.id)}-${choiceIndex}" type="radio" name="wc-${slugify(question.id)}" value="${choiceIndex}" data-question-id="${question.id}" ${state.answers[question.id] === choiceIndex ? "checked" : ""} />\n                  <span class="wc-answer-option">${escapeHtml(choice.label)}</span>\n                </label>\n              `).join("")}\n            </div>\n          </article>\n        `).join("");
+      },
     };
   }
 
