@@ -1266,7 +1266,7 @@
       .wc-disclaimer{margin-top:18px;font-size:13px}
       .wc-shell :focus-visible{outline:2px solid rgba(255,191,105,.95);outline-offset:2px}
       @media (max-width:1040px){.wc-layout{grid-template-columns:1fr}.wc-sidebar{position:static}}
-      @media (max-width:760px){.wc-root{padding:18px}.wc-topbar,.wc-grid-2,.wc-perks,.wc-results-grid,.wc-chart-wrap{display:grid;grid-template-columns:1fr}.wc-chart{margin:0 auto}}
+      @media (max-width:760px){.wc-root{padding:18px}.wc-topbar,.wc-grid-2,.wc-perks,.wc-results-grid,.wc-chart-wrap,.table-grid{display:grid;grid-template-columns:1fr}.wc-chart{margin:0 auto}}
       @media (prefers-reduced-motion:reduce){.wc-progress-fill,.wc-perk-card,.wc-answer-option,.wc-button{transition:none}}
     `;
     document.head.appendChild(style);
@@ -1574,6 +1574,7 @@
     th, td { padding: 7px 5px; }
     td { color: black; }
     .table-grid, .section, .metric { break-inside: avoid; }
+    .made-by { color: black; }
   }
 </style>
 </head>
@@ -1622,6 +1623,7 @@
       <h2>Recommendations</h2>
       <p style="font-size:1.05rem;line-height:1.65;margin:0;">${escapeHtml(result.verdict.split("Recommendation:").pop().trim())}</p>
     </div>
+    <div class="made-by" style="text-align: center; margin-top: 20px; font-size: 0.8rem; color: #999;">Made by Angelyze for fallouthub.blog</div>
   </div>
 </div>
 <script>window.onload = () => { window.print(); };</script>
@@ -1636,6 +1638,84 @@
       popup.document.close();
       popup.focus();
       this.patchState({ flash: "Print dialog opened. Choose Save as PDF." });
+    }
+
+    downloadImage() {
+      if (!hasDocument || !globalScope.html2canvas) {
+        this.patchState({ flash: "Image download not available." });
+        return;
+      }
+      const result = calculateResult(this.state);
+      const imageHtml = `
+        <div style="width: 800px; margin: auto; padding: 20px; box-sizing: border-box; font-family: Arial, sans-serif; background: #100902; color: #ffd59f; font-size: 13px;">
+          <div style="max-width: 100%; margin: auto; padding: 20px; border-radius: 16px; background: #120b03; border: 1px solid rgba(255,144,0,.25);">
+            <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 16px;">
+              <div>
+                <h1 style="margin: 0; font-size: 1.6rem; letter-spacing: .08em;">Wasteland Survival Verdict</h1>
+                <p style="margin: 4px 0; font-size: 0.9rem;"><strong>${escapeHtml(result.state.character.name || "Unnamed Survivor")}</strong> · ${result.state.character.sex === "female" ? "F" : "M"}, Age ${result.state.character.age}</p>
+                <p style="margin: 4px 0; font-size: 0.9rem;">${escapeHtml(result.scenario.label)} · ${escapeHtml(result.companion ? result.companion.label : "No companion")}</p>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:4rem;font-weight:700;color:#ffb56b;">${result.finalChance}%</div>
+                <div style="margin-top:8px;font-size:1rem;">${escapeHtml(result.tier)}</div>
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 16px 0 20px 0;">
+              <div style="padding: 11px; border-radius: 14px; background: rgba(255,144,0,.08); border: 1px solid rgba(255,144,0,.18); text-align: center;">
+                <strong style="display: block; font-size: 1.28rem; margin-top: 6px; color: #ffb56b;">${escapeHtml(result.highestStat.label)} ${this.state.stats[result.highestStat.id]}</strong>
+                <div style="color: #999; font-size: 0.8rem;">Strongest trait</div>
+              </div>
+              <div style="padding: 11px; border-radius: 14px; background: rgba(255,144,0,.08); border: 1px solid rgba(255,144,0,.18); text-align: center;">
+                <strong style="display: block; font-size: 1.28rem; margin-top: 6px; color: #ffb56b;">${escapeHtml(result.lowestStat.label)} ${this.state.stats[result.lowestStat.id]}</strong>
+                <div style="color: #999; font-size: 0.8rem;">Biggest weakness</div>
+              </div>
+              <div style="padding: 11px; border-radius: 14px; background: rgba(255,144,0,.08); border: 1px solid rgba(255,144,0,.18); text-align: center;">
+                <strong style="display: block; font-size: 1.28rem; margin-top: 6px; color: #ffb56b;">${escapeHtml(result.lifespan.text)}</strong>
+                <div style="color: #999; font-size: 0.8rem;">Projected lifespan</div>
+              </div>
+            </div>
+            <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(255,144,0,.15);">
+              <h2 style="margin: 0 0 12px 0; font-size: 1rem; color: #ffb56b; text-transform: uppercase; letter-spacing: 0.06em;">Summary</h2>
+              <p style="font-size:1.05rem;line-height:1.65;margin:0;">${escapeHtml(result.verdict)}</p>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 14px;">
+              <div style="padding: 12px; border-radius: 12px; background: rgba(255,144,0,.05); border: 1px solid rgba(255,144,0,.12);">
+                <h2 style="font-size: 0.95rem;">Key stats</h2>
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                  <tbody>
+                    ${SPECIAL_STATS.map((stat) => `<tr><th style="padding: 9px 6px; border-bottom: 1px solid rgba(255,144,0,.1); text-align: left; color: #ffb56b; font-weight: 700; font-size: 0.95rem;">${escapeHtml(stat.label)}</th><td style="padding: 9px 6px; border-bottom: 1px solid rgba(255,144,0,.1); text-align: left; color: #ffd59f; font-size: 0.92rem;">${this.state.stats[stat.id]}</td></tr>`).join("")}
+                  </tbody>
+                </table>
+              </div>
+              <div style="padding: 12px; border-radius: 12px; background: rgba(255,144,0,.05); border: 1px solid rgba(255,144,0,.12);">
+                <h2 style="font-size: 0.95rem;">Cause of failure</h2>
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                  <tbody>
+                    ${((result.deathBreakdown || result.causeResult || [])).map((slice) => `<tr><th style="padding: 9px 6px; border-bottom: 1px solid rgba(255,144,0,.1); text-align: left; color: #ffb56b; font-weight: 700; font-size: 0.95rem;" class="cause-label">${escapeHtml(slice.label)}</th><td style="padding: 9px 6px; border-bottom: 1px solid rgba(255,144,0,.1); text-align: left; color: #ffb56b; font-weight: 700; font-size: 0.92rem;" class="cause-value">${slice.percentage}%</td></tr>`).join("")}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div style="text-align: center; margin-top: 20px; font-size: 0.8rem; color: #999;">Made by Angelyze for fallouthub.blog</div>
+          </div>
+        </div>
+      `;
+      const tempDiv = globalScope.document.createElement('div');
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.left = '-9999px';
+      tempDiv.innerHTML = imageHtml;
+      globalScope.document.body.appendChild(tempDiv);
+      globalScope.html2canvas(tempDiv, { backgroundColor: '#100902', width: 800, height: tempDiv.scrollHeight }).then(canvas => {
+        globalScope.document.body.removeChild(tempDiv);
+        const link = globalScope.document.createElement('a');
+        link.download = 'wasteland-survival-verdict.jpg';
+        link.href = canvas.toDataURL('image/jpeg', 0.9);
+        link.click();
+        this.patchState({ flash: "Image downloaded." });
+      }).catch(err => {
+        globalScope.document.body.removeChild(tempDiv);
+        this.patchState({ flash: "Failed to generate image." });
+      });
     }
 
     handleClick(event) {
@@ -1664,6 +1744,8 @@
         this.render();
       } else if (action === "download-card") {
         this.downloadCard();
+      } else if (action === "download-image") {
+        this.downloadImage();
       } else if (action === "jump-math") {
         this.patchState({ showMath: true });
         setTimeout(() => this.root?.querySelector("[data-math-panel]")?.scrollIntoView({ behavior: "smooth", block: "start" }), 40);
@@ -1722,6 +1804,7 @@
             ${canGoBack ? `<button class="wc-button" data-action="back">Back</button>` : ""}
             ${stepFour ? `
               <button class="wc-button" data-action="reset">Try Another Build</button>
+              <button class="wc-button" data-action="download-image">Download Image</button>
               <button class="wc-button wc-button-primary" data-action="download-card">Download PDF</button>
             ` : `<button class="wc-button wc-button-primary" data-action="next">${escapeHtml(nextLabel)}</button>`}
           </div>
