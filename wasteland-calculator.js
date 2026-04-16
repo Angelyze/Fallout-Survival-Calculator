@@ -1548,7 +1548,7 @@
   table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
   th, td { padding: 9px 6px; border-bottom: 1px solid rgba(255,144,0,.1); text-align: left; }
   th { color: #ffb56b; font-weight: 700; font-size: 0.95rem; }
-  td { color: #fff; font-size: 0.92rem; }
+  td { color: #ffd59f; font-size: 0.92rem; }
   .cause-label { display: block; }
   .cause-value { color: #ffb56b; font-weight: 700; }
   .list { display: none; }
@@ -1572,6 +1572,7 @@
     .table-card h2 { font-size: 0.9rem; margin: 0 0 8px; }
     table { font-size: 0.85rem; }
     th, td { padding: 7px 5px; }
+    td { color: black; }
     .table-grid, .section, .metric { break-inside: avoid; }
   }
 </style>
@@ -1619,7 +1620,7 @@
     </div>
     <div class="section">
       <h2>Recommendations</h2>
-      <p>${escapeHtml(result.verdict.split("Recommendation:").pop().trim())}</p>
+      <p style="font-size:1.05rem;line-height:1.65;margin:0;">${escapeHtml(result.verdict.split("Recommendation:").pop().trim())}</p>
     </div>
   </div>
 </div>
@@ -1850,7 +1851,6 @@
           <div class="wc-meter"><span>Companion</span><strong>${escapeHtml(getCompanionById(this.state.companionId)?.label || "None chosen")}</strong></div>
           <div class="wc-meter"><span>Inventory</span><strong>${this.state.inventory.length}/2</strong></div>
         </div>
-        <div class="wc-callout"><strong>Hint:</strong> Four questions come from your selected wasteland pack, and two are shared challenges across all builds.</div>
       `;
     }
 
