@@ -991,12 +991,18 @@
     if (typeof raw.c === "string" && getCompanionById(raw.c)) next.companionId = raw.c;
     if (raw.a && typeof raw.a === "object") {
       const allowedQuestionIds = new Set(getQuestionSet(next.scenarioId).map((question) => question.id));
-      for (const [questionId, answerIndex] of Object.entries(raw.a)) {
-        if (allowedQuestionIds.has(questionId) && Number.isInteger(answerIndex)) next.answers[questionId] = clamp(answerIndex, 0, 3);
+      for (const [questionId, rawAnswer] of Object.entries(raw.a)) {
+        const answerIndex = Number(rawAnswer);
+        if (allowedQuestionIds.has(questionId) && Number.isInteger(answerIndex)) {
+          next.answers[questionId] = clamp(answerIndex, 0, 3);
+        }
       }
     }
-    next.currentStep = raw.currentStep ? clamp(Number(raw.currentStep) || 1, 1, 4) : 1;
+    const rawStep = raw.currentStep ? clamp(Number(raw.currentStep) || 1, 1, 4) : 1;
     next.showMath = typeof raw.showMath === "boolean" ? raw.showMath : next.showMath;
+    // If the incoming state is effectively pristine (no meaningful choices made),
+    // do not advance the wizard based on a stale currentStep value from the payload.
+    next.currentStep = isPristineState(next) ? 1 : rawStep;
     return next;
   }
 
@@ -1402,6 +1408,18 @@
       } else if (action === "reset") {
         this.state = buildDefaultState(this.config);
         saveState(this.state);
+        // Remove any shared-build query param so a reload doesn't re-import a shared state
+        if (hasDocument && globalScope.history && globalScope.location) {
+          try {
+            const url = new URL(globalScope.location.href);
+            if (url.searchParams.has(SHARE_PARAM)) {
+              url.searchParams.delete(SHARE_PARAM);
+              globalScope.history.replaceState(null, "", url.toString());
+            }
+          } catch (e) {
+            // ignore URL manipulation failures
+          }
+        }
         this.render();
       } else if (action === "share") {
         this.shareResult();
