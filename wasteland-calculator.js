@@ -1566,7 +1566,7 @@
     <div class="section">
       <h2>Cause of failure</h2>
       <ul class="list">
-        ${result.deathBreakdown.map((slice) => `<li><strong>${slice.percentage}%</strong> ${escapeHtml(slice.label)}</li>`).join("")}
+        ${((result.deathBreakdown || result.causeResult || [])).map((slice) => `<li><strong>${slice.percentage}%</strong> ${escapeHtml(slice.label)}</li>`).join("")}
       </ul>
     </div>
     <div class="section">
@@ -1668,7 +1668,6 @@
             ${stepFour ? `
               <button class="wc-button" data-action="reset">Try Another Build</button>
               <button class="wc-button wc-button-primary" data-action="download-card">Download PDF</button>
-              ${this.config.showMathPanel ? `<button class="wc-button" data-action="jump-math">See How The Math Works</button>` : ""}
             ` : `<button class="wc-button wc-button-primary" data-action="next">${escapeHtml(nextLabel)}</button>`}
           </div>
         </div>
@@ -1742,7 +1741,6 @@
             </label>
           `).join("")}
         </div>
-        ${this.renderFooter({ canGoBack: false, canGoNext: isStepOneValid(this.state), nextLabel: "NEXT STEP" })}
       `;
     }
 
@@ -1798,7 +1796,6 @@
           `).join("")}
         </div>
         <div class="wc-callout"><strong>Hint:</strong> Four questions come from your selected wasteland pack, and two are shared challenges across all builds.</div>
-        ${this.renderFooter({ canGoBack: true, canGoNext: isStepTwoValid(this.state), nextLabel: "Reveal Verdict" })}
       `;
     }
 
@@ -1842,7 +1839,6 @@
             ${renderBreakdownRow("Companion synergy", result.companionEffects.sameWorld ? "Native-world bonus" : "Cross-world trust penalty")}
           </div>
         </section>
-        ${this.renderFooter({ canGoBack: true, canGoNext: false, nextLabel: "", stepFour: true })}
       `;
     }
 
@@ -1889,6 +1885,7 @@
           <main class="wc-main-panel">${this.state.currentStep === 1 ? this.renderStepOne(previewResult) : this.state.currentStep === 2 ? this.renderStepTwo(previewResult) : this.renderStepThree(result)}</main>
           <aside class="wc-sidebar">${this.renderSidebar(previewResult)}</aside>
         </div>
+        ${this.renderFooter(this.state.currentStep === 1 ? { canGoBack: false, canGoNext: isStepOneValid(this.state), nextLabel: "NEXT STEP" } : this.state.currentStep === 2 ? { canGoBack: true, canGoNext: isStepTwoValid(this.state), nextLabel: "Reveal Verdict" } : { canGoBack: true, canGoNext: false, nextLabel: "", stepFour: true })}
         <div class="wc-disclaimer">Unofficial fan-made calculator. This widget is not affiliated with Bethesda, Fallout, Prime Video, or Amazon. It uses original styling and deterministic fan-tool logic for entertainment and blog engagement.</div>
       `;
     }
