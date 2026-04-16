@@ -1637,7 +1637,13 @@
         this.patchState({ flash: "Complete the final verdict step before downloading your build." });
         return;
       }
-      this.patchState({ currentStep: clamp(this.state.currentStep + 1, 1, 3), flash: "" });
+      const nextStep = clamp(this.state.currentStep + 1, 1, 3);
+      this.patchState({ currentStep: nextStep, flash: "" });
+      if (nextStep > 1 && this.root) {
+        setTimeout(() => {
+          this.root.querySelector(".wc-topbar")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 40);
+      }
     }
 
     getStepLabel() {
@@ -1885,7 +1891,7 @@
         <section class="wc-progress" aria-label="Wizard progress"><div class="wc-progress-row"><span>Step ${this.state.currentStep}/3</span><span>${escapeHtml(this.getStepLabel())}</span></div><div class="wc-progress-track"><div class="wc-progress-fill" style="width:${(this.state.currentStep / 3) * 100}%"></div></div></section>
         <div class="wc-layout">
           <main class="wc-main-panel">${this.state.currentStep === 1 ? this.renderStepOne(previewResult) : this.state.currentStep === 2 ? this.renderStepTwo(previewResult) : this.renderStepThree(result)}</main>
-          <aside class="wc-sidebar">${this.renderSidebar(previewResult)}</aside>
+          ${this.state.currentStep === 2 ? "" : `<aside class="wc-sidebar">${this.renderSidebar(previewResult)}</aside>`}
         </div>
         ${this.renderFooter(this.state.currentStep === 1 ? { canGoBack: false, canGoNext: isStepOneValid(this.state), nextLabel: "NEXT STEP" } : this.state.currentStep === 2 ? { canGoBack: true, canGoNext: isStepTwoValid(this.state), nextLabel: "Reveal Verdict" } : { canGoBack: true, canGoNext: false, nextLabel: "", stepFour: true })}
         <div class="wc-disclaimer">Unofficial fan-made calculator. This widget is not affiliated with Bethesda, Fallout, Prime Video, or Amazon. It uses original styling and deterministic fan-tool logic for entertainment and blog engagement.</div>
