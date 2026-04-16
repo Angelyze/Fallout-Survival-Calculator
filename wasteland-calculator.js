@@ -1529,7 +1529,7 @@
 <title>Wasteland Survival Calculator PDF</title>
 <style>
   body { margin: 0; font-family: Arial, sans-serif; background: #100902; color: #ffd59f; font-size: 13px; }
-  .page { width: 210mm; max-width: 100%; padding: 10px; box-sizing: border-box; }
+  .page { width: 210mm; max-width: 100%; padding: 8px; box-sizing: border-box; }
   .card { max-width: 100%; margin: auto; padding: 12px; border-radius: 16px; background: #120b03; border: 1px solid rgba(255,144,0,.25); }
   .header { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 16px; }
   .header h1 { margin: 0; font-size: 1.6rem; letter-spacing: .08em; }
