@@ -1208,6 +1208,8 @@
       .wc-progress{margin:18px 0}
       .wc-progress-track{height:12px;border-radius:999px;overflow:hidden;background:rgba(255,144,0,.08);border:1px solid rgba(255,144,0,.12)}
       .wc-progress-fill{height:100%;background:linear-gradient(90deg,rgba(255,144,0,.7),rgba(255,191,105,.95),rgba(255,144,0,.7));box-shadow:0 0 16px rgba(255,144,0,.35);transition:width .28s ease}
+      .wc-footer-row{margin-top:26px}
+      .wc-button-row{display:flex;flex-wrap:wrap;gap:12px;justify-content:flex-end}
       .wc-layout{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(290px,.92fr);gap:20px;align-items:start}
       .wc-sidebar{position:sticky;top:16px}
       .wc-grid-2,.wc-perks,.wc-results-grid,.wc-questions,.wc-summary-grid,.wc-sidebar-list,.wc-legend{display:grid;gap:14px}
@@ -1677,7 +1679,7 @@
     renderSidebar(previewResult) {
       const filtered = normalizeBuckets(calculateBuildBuckets(this.state.stats));
       return `
-        <h3>Current Character Build</h3>
+        ${this.state.currentStep === 2 ? "" : "<h3>Current Character Build</h3>"}
         <div class="wc-summary-grid">
           <div class="wc-summary-card"><small>Name</small><strong>${escapeHtml(this.state.character.name || "Unnamed")}</strong><div>${escapeHtml(getScenarioById(this.state.scenarioId)?.label || "Not chosen")}</div></div>
           <div class="wc-summary-card"><small>Companion</small><div>${escapeHtml(getCompanionById(this.state.companionId)?.label || "None")}</div><div>${escapeHtml(this.state.character.sex === "female" ? "Female" : "Male")}, Age ${escapeHtml(String(this.state.character.age))}</div></div>
