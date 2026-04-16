@@ -1668,7 +1668,7 @@
               <button class="wc-button" data-action="reset">Try Another Build</button>
               <button class="wc-button wc-button-primary" data-action="download-card">Download PDF</button>
               ${this.config.showMathPanel ? `<button class="wc-button" data-action="jump-math">See How The Math Works</button>` : ""}
-            ` : `<button class="wc-button wc-button-primary" data-action="next" ${canGoNext ? "" : "disabled"}>${escapeHtml(nextLabel)}</button>`}
+            ` : `<button class="wc-button wc-button-primary" data-action="next">${escapeHtml(nextLabel)}</button>`}
           </div>
         </div>
       `;
@@ -1741,7 +1741,7 @@
             </label>
           `).join("")}
         </div>
-        ${this.renderFooter({ canGoBack: false, canGoNext: isStepOneValid(this.state), nextLabel: "Choose Gear & Scenarios" })}
+        ${this.renderFooter({ canGoBack: false, canGoNext: isStepOneValid(this.state), nextLabel: "NEXT STEP" })}
       `;
     }
 
