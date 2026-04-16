@@ -1529,8 +1529,8 @@
 <title>Wasteland Survival Calculator PDF</title>
 <style>
   body { margin: 0; font-family: Arial, sans-serif; background: #100902; color: #ffd59f; font-size: 13px; }
-  .page { width: 210mm; max-width: 100%; padding: 12px; box-sizing: border-box; }
-  .card { max-width: 100%; margin: auto; padding: 14px; border-radius: 16px; background: #120b03; border: 1px solid rgba(255,144,0,.25); }
+  .page { width: 210mm; max-width: 100%; padding: 11px; box-sizing: border-box; }
+  .card { max-width: 100%; margin: auto; padding: 13px; border-radius: 16px; background: #120b03; border: 1px solid rgba(255,144,0,.25); }
   .header { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 16px; }
   .header h1 { margin: 0; font-size: 1.6rem; letter-spacing: .08em; }
   .header p { margin: 4px 0; font-size: 0.9rem; }
@@ -1553,7 +1553,7 @@
   .cause-value { color: #ffb56b; font-weight: 700; }
   .list { display: none; }
   @media print {
-    @page { size: A4 portrait; margin: 9mm; orphans: 3; widows: 3; }
+    @page { size: A4 portrait; margin: 8mm; orphans: 3; widows: 3; }
     html, body { width: 210mm; height: 297mm; margin: 0; padding: 0; }
     body { background: white; color: black; font-size: 11px; }
     .page { padding: 5px; }
@@ -1599,7 +1599,7 @@
     </div>
     <div class="section">
       <h2>Summary</h2>
-      <p style="font-size:1.05rem;line-height:1.65;margin:0;">${escapeHtml(result.verdict)}</p>
+      <p style="font-size:1rem;line-height:1.65;margin:0;">${escapeHtml(result.verdict)}</p>
     </div>
     <div class="table-grid">
       <div class="table-card">
