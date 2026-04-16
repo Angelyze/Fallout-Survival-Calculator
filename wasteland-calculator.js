@@ -905,12 +905,12 @@
     const ageMultiplier = clamp(1.02 - Math.abs(age - 30) / 120, 0.85, 1.08);
     const sexMultiplier = SEX_OPTIONS.find((option) => option.id === state.character.sex)?.scoreMultiplier || 1;
     const scenarioMultiplier = scenario ? scenario.difficultyMultiplier : 1;
-    const rawBuild = 44 + (baseScore - 50) * 0.48 + companionEffects.scoreDelta + traitEffects.scoreDelta + inventoryEffects.scoreDelta + questionEffects.scoreDelta;
-    const baseChance = clamp(Math.round(rawBuild * ageMultiplier * sexMultiplier * scenarioMultiplier), 5, 98);
-    const riskBuffer = Math.max(0, 26 - questionEffects.answerQuality * 2.5 - (finalBuildBuckets.luck / 3));
-    const firstMonth = clamp(Math.round(baseChance + 8 - riskBuffer * 0.35), 5, 99);
-    const thirdMonth = clamp(Math.round(baseChance + 2 - riskBuffer * 0.2), 3, 98);
-    const oneYear = clamp(Math.round(baseChance - 8 - riskBuffer * 0.1), 1, 95);
+    const rawBuild = 38 + (baseScore - 50) * 0.42 + companionEffects.scoreDelta * 0.8 + traitEffects.scoreDelta * 0.85 + inventoryEffects.scoreDelta * 0.8 + questionEffects.scoreDelta * 0.75;
+    const baseChance = clamp(Math.round(rawBuild * ageMultiplier * sexMultiplier * scenarioMultiplier * 0.92), 5, 98);
+    const riskBuffer = Math.max(0, 32 - questionEffects.answerQuality * 2.5 - (finalBuildBuckets.luck / 2));
+    const firstMonth = clamp(Math.round(baseChance + 2 - riskBuffer * 0.4), 5, 99);
+    const thirdMonth = clamp(Math.round(baseChance - 2 - riskBuffer * 0.25), 3, 98);
+    const oneYear = clamp(Math.round(baseChance - 12 - riskBuffer * 0.15), 1, 95);
     const answerProfile = calculateAnswerProfile(state);
     const strongestCategory = pickBestCategory(finalBuildBuckets);
     const weakestCategory = pickWorstCategory(finalBuildBuckets);
@@ -1793,11 +1793,6 @@
             </label>
           `).join("")}
         </div>
-        <div class="wc-meter-row" style="margin-top:22px;">
-          <div class="wc-meter"><span>Answered</span><strong>${answeredCount}/${questions.length}</strong></div>
-          <div class="wc-meter"><span>Companion</span><strong>${escapeHtml(getCompanionById(this.state.companionId)?.label || "None chosen")}</strong></div>
-          <div class="wc-meter"><span>Inventory</span><strong>${this.state.inventory.length}/2</strong></div>
-        </div>
         <div class="wc-questions">
           ${questions.map((question, index) => `
             <article class="wc-question-card">
@@ -1813,6 +1808,11 @@
               </div>
             </article>
           `).join("")}
+        </div>
+        <div class="wc-meter-row" style="margin-top:22px;">
+          <div class="wc-meter"><span>Answered</span><strong>${answeredCount}/${questions.length}</strong></div>
+          <div class="wc-meter"><span>Companion</span><strong>${escapeHtml(getCompanionById(this.state.companionId)?.label || "None chosen")}</strong></div>
+          <div class="wc-meter"><span>Inventory</span><strong>${this.state.inventory.length}/2</strong></div>
         </div>
         <div class="wc-callout"><strong>Hint:</strong> Four questions come from your selected wasteland pack, and two are shared challenges across all builds.</div>
       `;
