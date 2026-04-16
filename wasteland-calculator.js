@@ -1059,12 +1059,14 @@
     const itemLabels = state.inventory.map((itemId) => getItemById(itemId)?.label).filter(Boolean).join(" and ") || "your equipment";
     const recommendation = VERDICT_TEMPLATES.recommendations[topCause.id];
     const companionLine = companion ? `${companion.label} gives you ${companionEffects.sameWorld ? "native-world chemistry" : "a risky cross-world partnership"}.` : "Without a reliable companion, every mistake lands harder.";
+    const charName = state.character.name ? state.character.name : "Vault Dweller";
+    const ageContext = state.character.age < 25 ? "young and less tested" : state.character.age > 35 ? "seasoned but slowing" : "at your peak";
     return [
-      scoreBand.intro,
-      `Your ${highestStat.label} (${state.stats[highestStat.id]}) is carrying this build, while ${lowestStat.label} (${state.stats[lowestStat.id]}) remains the seam the wasteland will pry open. You play like a ${style}, so this run works best when you lean into ${strongestCategory} instead of forcing ${weakestCategory}.`,
+      `${charName}, ${scoreBand.intro.toLowerCase()}`,
+      `At ${ageContext}, you rely heavily on your ${highestStat.label} (${state.stats[highestStat.id]}), but your ${lowestStat.label} (${state.stats[lowestStat.id]}) is where the wasteland will exploit you. You play like a ${style}, so lean into ${strongestCategory} and avoid ${weakestCategory}.`,
       `${companionLine} ${toneLine}`,
-      `${traitLabels} and ${itemLabels} combine with your answers to give you ${firstMonth}% survival in month one, ${thirdMonth}% by month three, and ${oneYear}% at one year.`,
-      `${topCause.label} is the most likely failure mode, which makes this run feel particularly fragile around ${topCause.label.toLowerCase()}. Projected lifespan: about ${lifespan.text}, maybe ${lifespan.bestCaseText} if you keep your strategy tight. Recommendation: ${recommendation}`,
+      `With ${traitLabels} and ${itemLabels}, combined with your survival decisions, you have a ${firstMonth}% shot in month one, ${thirdMonth}% by month three, and ${oneYear}% at one year.`,
+      `The biggest threat is ${topCause.label.toLowerCase()}. Your build feels fragile there. Expect to survive around ${lifespan.text}, possibly ${lifespan.bestCaseText} if discipline holds. Recommendation: ${recommendation}`,
     ].join(" ");
   }
 
@@ -1544,15 +1546,15 @@
   .cause-value { color: #ffb56b; font-weight: 700; }
   .list { display: none; }
   @media print {
-    @page { size: A4 portrait; margin: 16mm; }
+    @page { size: A4 portrait; margin: 10mm; }
     html, body { width: 210mm; height: 297mm; margin: 0; padding: 0; }
     body { background: white; color: black; font-size: 12px; }
-    .page { padding: 12px; }
-    .card { background: white; border-color: #ccc; box-shadow: none; }
-    .header { gap: 14px; }
-    .header h1 { font-size: 1.6rem; }
-    .metrics { gap: 10px; margin: 16px 0; }
-    .section { page-break-inside: avoid; }
+    .page { padding: 6px; }
+    .card { background: white; border-color: #ccc; box-shadow: none; padding: 12px; }
+    .header { gap: 10px; }
+    .header h1 { font-size: 1.4rem; }
+    .metrics { gap: 8px; margin: 12px 0; }
+    .section { page-break-inside: avoid; margin-top: 12px; }
     .metric, .section, .list li { break-inside: avoid; }
   }
 </style>
@@ -1563,6 +1565,7 @@
     <div class="header">
       <div>
         <h1>Wasteland Survival Verdict</h1>
+        <p><strong>${escapeHtml(result.state.character.name || "Unnamed Survivor")}</strong> · ${result.state.character.sex === "female" ? "F" : "M"}, Age ${result.state.character.age}</p>
         <p>${escapeHtml(result.scenario.label)} · ${escapeHtml(result.companion ? result.companion.label : "No companion")}</p>
       </div>
       <div style="text-align:right;">
@@ -1577,7 +1580,7 @@
     </div>
     <div class="section">
       <h2>Summary</h2>
-      <p>${escapeHtml(result.verdict)}</p>
+      <p style="font-size:1.1rem;line-height:1.7;">${escapeHtml(result.verdict)}</p>
     </div>
     <div class="table-grid">
       <div class="table-card">
@@ -1837,7 +1840,7 @@
     renderStepThree(result) {
       const questions = getActiveQuestionSet(this.state);
       return `
-        <div class="wc-step-head"><div><div class="wc-step-tag">03 • Final Verdict</div><h3 class="wc-step-title">A4-ready verdict with survival math and likely failure modes.</h3><p class="wc-step-copy">Your final build is summarized here. Use download to save a printable A4 result page for your vault notes.</p></div></div>
+        <div class="wc-step-head"><div><div class="wc-step-tag">03 • Final Verdict</div><h3 class="wc-step-title">Your survival odds in the wasteland.</h3><p class="wc-step-copy">Your final build is summarized here. Use download to save a printable result page for your vault notes.</p></div></div>
         <section class="wc-results-grid">
           <div class="wc-result-card wc-result-primary">
             <small>1-month survival chance</small>
