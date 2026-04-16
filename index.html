@@ -1,77 +1,19 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Fallout Wasteland Survival Calculator</title>
-  <meta name="description" content="Build your perfect Fallout survivor, pick a companion, answer scenario-specific questions, and get a deterministic wasteland survival verdict.">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fallout Survival Calculator</title>
   <style>
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
-      background:
-        radial-gradient(circle at top, rgba(255, 144, 0, 0.18), transparent 40%),
-        linear-gradient(180deg, #120b03 0%, #090603 100%);
-      color: #ffe0b3;
-    }
-    .page {
-      width: min(1200px, calc(100% - 32px));
-      margin: 0 auto;
-      padding: 40px 0 72px;
-    }
-    .intro {
-      margin-bottom: 24px;
-      padding: 24px;
-      border-radius: 20px;
-      background: rgba(255, 144, 0, 0.06);
-      border: 1px solid rgba(255, 144, 0, 0.16);
-      box-shadow: 0 0 30px rgba(255, 144, 0, 0.06);
-    }
-    .intro h1 {
-      margin: 0 0 12px;
-      font-size: clamp(2rem, 5vw, 3.4rem);
-      line-height: 0.95;
-      text-transform: uppercase;
-      color: #ffbe5c;
-    }
-    .intro p {
-      margin: 0;
-      line-height: 1.7;
-      max-width: 68ch;
-      color: #f6c989;
-    }
-    .embed-note {
-      margin-top: 16px;
-      font-size: 14px;
-      color: #d8a966;
-    }
-    code {
-      color: #ffbe5c;
-    }
+    body { margin: 0; padding: 0; font-family: system-ui, sans-serif; background: #111; }
+    #calculator-container { max-width: 1000px; margin: 20px auto; }
   </style>
 </head>
 <body>
-  <main class="page">
-    <section class="intro">
-      <h1>Wasteland Survival Calculator</h1>
-      <p>One clean embeddable Fallout calculator, styled like a cracked old terminal and powered by deterministic math. Build your S.P.E.C.I.A.L. loadout, lock in two perks, choose a companion, survive eight scenario questions, and see how long you realistically last on the surface.</p>
-      <p class="embed-note">Demo page auto-boots the widget through <code>data-wasteland-calculator</code>. The real embed API is <code>window.WastelandCalculator.init(container, config)</code>.</p>
-    </section>
+  <div id="calculator-container">
+    <div data-wasteland-calculator></div>
+  </div>
 
-    <div
-      data-wasteland-calculator
-      data-title="Fallout Wasteland Survival Calculator"
-      data-default-scenario="fallout4"
-      data-show-math="true"
-      data-accent-color="#ff9000"
-    ></div>
-
-    <noscript>
-      <p>This calculator needs JavaScript enabled to run.</p>
-    </noscript>
-  </main>
-
-  <script src="./wasteland-calculator.js"></script>
+  <script src="https://raw.githubusercontent.com/Angelyze/Fallout-Survival-Calculator/main/wasteland-calculator.js"></script>
 </body>
 </html>
