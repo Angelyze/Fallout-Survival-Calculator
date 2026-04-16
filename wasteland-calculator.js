@@ -25,19 +25,6 @@
     { id: "luck", label: "Luck", description: "Crits, escapes, fortunate finds, and the occasional miracle.", baseValue: 5, min: 1, max: 10, weight: 1.35 },
   ];
 
-  const PERKS = [
-    { id: "iron-fist", label: "Iron Fist", description: "You hit harder up close and commit faster when things get ugly.", tags: ["combat", "melee"], effects: { scoreDelta: 3, bucketDeltas: { combat: 9, stealth: -2 } }, scenarioModifiers: { tvshow: { scoreDelta: 1 }, tactics: { scoreDelta: 1 } } },
-    { id: "swift-learner", label: "Swift Learner", description: "You adapt quickly, pick up patterns, and stop repeating lethal mistakes.", tags: ["utility", "adaptation"], effects: { scoreDelta: 4, bucketDeltas: { scavenging: 4, diplomacy: 2, luck: 2 } }, scenarioModifiers: { fallout1: { scoreDelta: 1 }, fallout2: { scoreDelta: 1 } } },
-    { id: "rad-resistant", label: "Rad Resistant", description: "You are far less likely to glow before the week is out.", tags: ["radiation", "survival"], effects: { scoreDelta: 5, bucketDeltas: { scavenging: 5 }, deathMods: { radiation: -12 } }, scenarioModifiers: { fallout3: { scoreDelta: 2 }, fallout76: { scoreDelta: 2 }, tvshow: { scoreDelta: 3 } } },
-    { id: "ghoulish", label: "Ghoulish", description: "The wasteland's worst air bothers you less than it should.", tags: ["radiation", "creepy"], effects: { scoreDelta: 4, bucketDeltas: { scavenging: 4, luck: 3 }, deathMods: { radiation: -15, random: 5 } }, scenarioModifiers: { tvshow: { scoreDelta: 2 }, fallout4: { scoreDelta: 2 } } },
-    { id: "toughness", label: "Toughness", description: "You absorb punishment better than most vault-soft rookies.", tags: ["combat", "durability"], effects: { scoreDelta: 6, bucketDeltas: { combat: 7, scavenging: 2 } }, scenarioModifiers: { fallout1: { scoreDelta: 1 }, tvshow: { scoreDelta: 1 } } },
-    { id: "awareness", label: "Awareness", description: "You read threats early and don't walk into as many bad surprises.", tags: ["scouting", "utility"], effects: { scoreDelta: 5, bucketDeltas: { stealth: 6, scavenging: 4 }, deathMods: { random: -10 } }, scenarioModifiers: { newvegas: { scoreDelta: 1 }, fallout3: { scoreDelta: 1 } } },
-    { id: "lady-killer", label: "Lady Killer / Black Widow", description: "You can weaponize charm when a straight fight would be a mistake.", tags: ["charisma", "social"], effects: { scoreDelta: 3, bucketDeltas: { diplomacy: 10, luck: 2, combat: -1 }, deathMods: { betrayal: -4 } }, scenarioModifiers: { newvegas: { scoreDelta: 2 }, fallout4: { scoreDelta: 1 } } },
-    { id: "lone-wanderer", label: "Lone Wanderer", description: "You do not need much help, but that independence can come at a cost.", tags: ["solo", "survival"], effects: { scoreDelta: 4, bucketDeltas: { scavenging: 4, stealth: 3, diplomacy: -2 }, deathMods: { betrayal: -6 } }, scenarioModifiers: { fallout3: { scoreDelta: 1 }, tvshow: { scoreDelta: 1 } } },
-    { id: "fortune-finder", label: "Fortune Finder", description: "Caps, caches, and weirdly well-timed luck seem to find you.", tags: ["luck", "resource"], effects: { scoreDelta: 4, bucketDeltas: { luck: 9, scavenging: 3 } }, scenarioModifiers: { newvegas: { scoreDelta: 3 }, fallout76: { scoreDelta: 1 } } },
-    { id: "sneak", label: "Sneak", description: "You survive by not being where the gunfire thinks you are.", tags: ["stealth", "mobility"], effects: { scoreDelta: 5, bucketDeltas: { stealth: 11, combat: -1 }, deathMods: { raiders: -6, random: -4 } }, scenarioModifiers: { newvegas: { scoreDelta: 1 }, fallout1: { scoreDelta: 1 } } },
-  ];
-
   const SCENARIOS = [
     { id: "fallout1", label: "Fallout 1", difficultyMultiplier: 0.92, tone: "grim", questionSetId: "fallout1", allowedCompanionIds: [] },
     { id: "fallout2", label: "Fallout 2", difficultyMultiplier: 0.98, tone: "wild", questionSetId: "fallout2", allowedCompanionIds: [] },
@@ -552,6 +539,66 @@
 
   const SCENARIO_GROUP_LABELS = Object.fromEntries(SCENARIOS.map((scenario) => [scenario.id, scenario.label]));
 
+  const SEX_OPTIONS = [
+    { id: "male", label: "Male", scoreMultiplier: 1.0, description: "Built for blunt strength and endurance." },
+    { id: "female", label: "Female", scoreMultiplier: 1.08, description: "Built for better instinct, adaptation, and long-term survival." },
+  ];
+
+  const TRAITS = [
+    { id: "fast-metabolism", label: "Fast Metabolism", description: "You recover faster, but hunger hits harder.", effects: { scoreDelta: 4, bucketDeltas: { scavenging: 2 }, vulnerabilities: { starvation: 10 } } },
+    { id: "heavy-hitter", label: "Heavy Hitter", description: "Your blows land harder, but you move less gracefully.", effects: { scoreDelta: 5, bucketDeltas: { combat: 3 }, vulnerabilities: { random: 5 } } },
+    { id: "scholar", label: "Scholar", description: "Knowledge serves you well, but it does not stop bullets.", effects: { scoreDelta: 3, bucketDeltas: { diplomacy: 3, scavenging: 1 }, vulnerabilities: { raiders: 6 } } },
+    { id: "cold-blooded", label: "Cold-Blooded", description: "You make hard choices without emotion, but relationships suffer.", effects: { scoreDelta: 4, bucketDeltas: { combat: 2, luck: 1 }, vulnerabilities: { betrayal: 8 } } },
+    { id: "survivalist", label: "Survivalist", description: "You adapt to the wild, but you are less flashy in social encounters.", effects: { scoreDelta: 4, bucketDeltas: { scavenging: 4, endurance: 0 }, vulnerabilities: { diplomacy: 6 } } },
+    { id: "charmer", label: "Charmer", description: "People want to help you, but you take more social risks.", effects: { scoreDelta: 4, bucketDeltas: { diplomacy: 4, luck: 1 }, vulnerabilities: { raiders: 5 } } },
+  ];
+
+  const INVENTORY_ITEMS = [
+    { id: "med-kit", label: "Med Kit", description: "Stabilizes injuries quickly, but it is heavy and rare.", effects: { scoreDelta: 5, bucketDeltas: { endurance: 1 }, vulnerabilities: { starvation: 4 } } },
+    { id: "lockpick-set", label: "Lockpick Set", description: "More routes open up, but you lose time in fights.", effects: { scoreDelta: 3, bucketDeltas: { stealth: 2, scavenging: 2 }, vulnerabilities: { raiders: 3 } } },
+    { id: "homemade-rations", label: "Homemade Rations", description: "Food lasts longer, but it weighs you down.", effects: { scoreDelta: 4, bucketDeltas: { scavenging: 3 }, vulnerabilities: { agility: 2 } } },
+    { id: "compact-firearm", label: "Compact Firearm", description: "Reliable when it counts, but ammunition is scarce.", effects: { scoreDelta: 5, bucketDeltas: { combat: 3 }, vulnerabilities: { starvation: 5 } } },
+    { id: "rad-resistance-serum", label: "Rad Resistance Serum", description: "Reduces radiation risk, but it is volatile.", effects: { scoreDelta: 4, bucketDeltas: { luck: 2 }, vulnerabilities: { random: 4 } } },
+    { id: "old-world-map", label: "Old World Map", description: "You can avoid bad ground, but enemies may still ambush you.", effects: { scoreDelta: 3, bucketDeltas: { diplomacy: 2, scavenging: 2 }, vulnerabilities: { raiders: 5 } } },
+    { id: "rebreather", label: "Rebreather", description: "Breathing gear keeps you safe in toxins, but it is fragile.", effects: { scoreDelta: 5, bucketDeltas: { endurance: 2 }, vulnerabilities: { radiation: 8 } } },
+    { id: "adrenaline-shot", label: "Adrenaline Shot", description: "A surge of energy in danger, but it wears off quickly.", effects: { scoreDelta: 4, bucketDeltas: { combat: 2, agility: 2 }, vulnerabilities: { random: 6 } } },
+    { id: "radio-beacon", label: "Radio Beacon", description: "You can call allies, but it draws attention.", effects: { scoreDelta: 3, bucketDeltas: { diplomacy: 3 }, vulnerabilities: { raiders: 6 } } },
+    { id: "steel-dog-tag", label: "Steel Dog Tag", description: "A small morale boost, but it adds no real protection.", effects: { scoreDelta: 2, bucketDeltas: { luck: 2 }, vulnerabilities: { random: 2 } } },
+  ];
+
+  const SHARED_QUESTIONS = [
+    q("shared-water", "You find a leaking water container near an old camp. You...", [
+      c("Seal the leak and ration it while you scout for cleaner sources.", { scavenging: 8, luck: 2 }),
+      c("Drink what you can now and move fast before it empties.", { endurance: 6, luck: 1, combat: -2 }),
+      c("Booby-trap the container and leave it to slow anybody who follows.", { stealth: 6, diplomacy: -3, luck: 1 }),
+      c("Ignore it to avoid the risk of contamination.", { scavenging: -2, diplomacy: 2, luck: 1 }),
+    ]),
+    q("shared-raid-spot", "A convoy crosses a narrow pass ahead. You...", [
+      c("Lay in wait and ambush them with your best cover.", { combat: 9, stealth: 3, diplomacy: -4 }),
+      c("Use a diversion and take only what you need.", { stealth: 7, scavenging: 5, luck: 1 }),
+      c("Signal them and try to trade for safe passage.", { diplomacy: 8, luck: 2, combat: -3 }),
+      c("Avoid them entirely and take the longer route.", { scavenging: 3, endurance: 2, luck: -1 }),
+    ]),
+    q("shared-rad-zone", "Radiation haze bleeds across the road. You...", [
+      c("Suit up and sprint through it at maximum speed.", { agility: 7, endurance: 2, diplomacy: -2 }),
+      c("Go around using the long safe route.", { scavenging: 4, diplomacy: 2, luck: -1 }),
+      c("Wait for the storm to pass, even if it costs time.", { endurance: 6, luck: 1, combat: -2 }),
+      c("Use a risky shortcut and hope the gear holds.", { luck: 6, scavenging: 2, endurance: -3 }),
+    ]),
+    q("shared-settlement", "A small settlement offers shelter for a price. You...", [
+      c("Pay the price and build a short-term alliance.", { diplomacy: 8, luck: 2, combat: -2 }),
+      c("Sneak in under cover of night.", { stealth: 9, scavenging: 3, diplomacy: -4 }),
+      c("Barter supplies for shelter and information.", { diplomacy: 7, scavenging: 4, endurance: 1 }),
+      c("Keep moving; settling attracts trouble.", { luck: 3, endurance: 4, diplomacy: -2 }),
+    ]),
+    q("shared-bridge", "The only bridge across a river is half collapsed. You...", [
+      c("Rebuild enough of it to cross slowly.", { scavenging: 7, diplomacy: 2, endurance: 2 }),
+      c("Find a ford and wade through.", { endurance: 8, luck: 1, combat: -2 }),
+      c("Use explosives to clear a safe path.", { combat: 6, luck: 2, diplomacy: -3 }),
+      c("Turn back and take a safer detour.", { scavenging: 5, luck: -1, diplomacy: 1 }),
+    ]),
+  ];
+
   function clamp(value, min, max) {
     return Math.min(max, Math.max(min, value));
   }
@@ -576,21 +623,26 @@
     const stats = Object.fromEntries(SPECIAL_STATS.map((stat) => [stat.id, stat.baseValue]));
     return {
       currentStep: 1,
+      character: { name: "", age: 25, sex: "male" },
       stats,
-      perks: [],
       scenarioId: config.defaultScenario && getScenarioById(config.defaultScenario) ? config.defaultScenario : DEFAULT_CONFIG.defaultScenario,
+      traits: [],
       companionId: "",
-      companionFilter: "",
+      inventory: [],
       answers: {},
-      showMath: config.showMathPanel !== false,
+      showMath: false,
       flash: "",
     };
   }
 
   function isPristineState(state) {
     if (!state) return false;
-    if (state.perks && state.perks.length > 0) return false;
+    if (state.traits && state.traits.length > 0) return false;
     if (state.companionId) return false;
+    if (state.inventory && state.inventory.length > 0) return false;
+    if (state.character?.name) return false;
+    if (state.character?.age && Number(state.character.age) !== 25) return false;
+    if (state.character?.sex !== "male") return false;
     // Treat an answers object that only contains zeros as still pristine
     const ansKeys = Object.keys(state.answers || {});
     if (ansKeys.length > 0) {
@@ -608,16 +660,51 @@
     return SCENARIOS.find((scenario) => scenario.id === id) || null;
   }
 
-  function getPerkById(id) {
-    return PERKS.find((perk) => perk.id === id) || null;
-  }
-
   function getCompanionById(id) {
     return COMPANIONS.find((companion) => companion.id === id) || null;
   }
 
+  function getTraitById(id) {
+    return TRAITS.find((trait) => trait.id === id) || null;
+  }
+
+  function getItemById(id) {
+    return INVENTORY_ITEMS.find((item) => item.id === id) || null;
+  }
+
   function getQuestionSet(scenarioId) {
     return QUESTION_SETS[scenarioId] || [];
+  }
+
+  function hashString(value) {
+    let hash = 0;
+    for (let i = 0; i < value.length; i += 1) {
+      hash = ((hash << 5) - hash) + value.charCodeAt(i);
+      hash |= 0;
+    }
+    return Math.abs(hash);
+  }
+
+  function pickStableIndexes(seed, count, max) {
+    const indexes = [];
+    let value = hashString(seed);
+    while (indexes.length < count && indexes.length < max) {
+      const next = value % max;
+      if (!indexes.includes(next)) indexes.push(next);
+      value = hashString(`${value}-${seed}`);
+    }
+    return indexes;
+  }
+
+  function getActiveQuestionSet(state) {
+    const scenarioQuestions = getQuestionSet(state.scenarioId);
+    const scenarioCount = Math.min(4, scenarioQuestions.length);
+    const scenarioIndexes = pickStableIndexes(`${state.scenarioId}:${state.character.sex}:scenario`, scenarioCount, scenarioQuestions.length);
+    const sharedIndexes = pickStableIndexes(`${state.scenarioId}:${state.character.sex}:shared`, 2, SHARED_QUESTIONS.length);
+    return [
+      ...scenarioIndexes.map((index) => scenarioQuestions[index]),
+      ...sharedIndexes.map((index) => SHARED_QUESTIONS[index]),
+    ].filter(Boolean);
   }
 
   function getRemainingSpecialPoints(stats) {
@@ -625,19 +712,29 @@
   }
 
   function getQuestionAnswerCount(state) {
-    return getQuestionSet(state.scenarioId).filter((question) => typeof state.answers[question.id] === "number").length;
+    return getActiveQuestionSet(state).filter((question) => typeof state.answers[question.id] === "number").length;
   }
 
   function isStepOneValid(state) {
-    return getRemainingSpecialPoints(state.stats) === 0 && state.perks.length === 2;
+    const nameValid = String(state.character?.name || "").trim().length > 0;
+    const age = Number(state.character?.age) || 0;
+    const ageValid = age >= 18 && age <= 75;
+    const sexValid = state.character?.sex === "male" || state.character?.sex === "female";
+    const scenarioValid = Boolean(getScenarioById(state.scenarioId));
+    const statsValid = getRemainingSpecialPoints(state.stats) === 0;
+    const traitsValid = Array.isArray(state.traits) && state.traits.length === 2;
+    return nameValid && ageValid && sexValid && scenarioValid && statsValid && traitsValid;
   }
 
   function isStepTwoValid(state) {
-    return Boolean(state.scenarioId && state.companionId);
+    const companionValid = Boolean(getCompanionById(state.companionId));
+    const inventoryValid = Array.isArray(state.inventory) && state.inventory.length === 2;
+    const questionsValid = getQuestionAnswerCount(state) === getActiveQuestionSet(state).length;
+    return companionValid && inventoryValid && questionsValid;
   }
 
   function isStepThreeValid(state) {
-    return getQuestionAnswerCount(state) === getQuestionSet(state.scenarioId).length;
+    return true;
   }
 
   function getHighestStat(state) {
@@ -702,28 +799,6 @@
     return normalized;
   }
 
-  function calculatePerkEffects(state) {
-    let scoreDelta = 0;
-    const bucketDeltas = { combat: 0, stealth: 0, diplomacy: 0, scavenging: 0, luck: 0 };
-    const deathMods = { raiders: 0, radiation: 0, starvation: 0, betrayal: 0, random: 0 };
-    for (const perkId of state.perks) {
-      const perk = getPerkById(perkId);
-      if (!perk) continue;
-      scoreDelta += perk.effects.scoreDelta || 0;
-      mergeBucketDeltas(bucketDeltas, perk.effects.bucketDeltas);
-      if (perk.effects.deathMods) {
-        for (const cause of Object.keys(deathMods)) {
-          deathMods[cause] += perk.effects.deathMods[cause] || 0;
-        }
-      }
-      const scenarioModifier = perk.scenarioModifiers[state.scenarioId];
-      if (scenarioModifier) {
-        scoreDelta += scenarioModifier.scoreDelta || 0;
-        mergeBucketDeltas(bucketDeltas, scenarioModifier.bucketDeltas);
-      }
-    }
-    return { scoreDelta, bucketDeltas, deathMods };
-  }
 
   function calculateCompanionEffects(state) {
     const companion = getCompanionById(state.companionId);
@@ -758,8 +833,116 @@
     return { scoreDelta, bucketDeltas, trustModifier, synergyNote: companion.specialRules?.note || "", specialFlavor, sameWorld };
   }
 
+  function calculateTraitEffects(state) {
+    const scoreDelta = (state.traits || []).reduce((sum, traitId) => {
+      const trait = getTraitById(traitId);
+      return sum + (trait?.effects?.scoreDelta || 0);
+    }, 0);
+    const bucketDeltas = { combat: 0, stealth: 0, diplomacy: 0, scavenging: 0, luck: 0 };
+    const deathMods = { raiders: 0, radiation: 0, starvation: 0, betrayal: 0, random: 0 };
+    for (const traitId of state.traits || []) {
+      const trait = getTraitById(traitId);
+      if (!trait) continue;
+      mergeBucketDeltas(bucketDeltas, trait.effects.bucketDeltas);
+      if (trait.effects.vulnerabilities) {
+        for (const cause of Object.keys(deathMods)) {
+          deathMods[cause] += trait.effects.vulnerabilities[cause] || 0;
+        }
+      }
+    }
+    return { scoreDelta, bucketDeltas, deathMods };
+  }
+
+  function calculateInventoryEffects(state) {
+    const scoreDelta = (state.inventory || []).reduce((sum, itemId) => {
+      const item = getItemById(itemId);
+      return sum + (item?.effects?.scoreDelta || 0);
+    }, 0);
+    const bucketDeltas = { combat: 0, stealth: 0, diplomacy: 0, scavenging: 0, luck: 0 };
+    const deathMods = { raiders: 0, radiation: 0, starvation: 0, betrayal: 0, random: 0 };
+    for (const itemId of state.inventory || []) {
+      const item = getItemById(itemId);
+      if (!item) continue;
+      mergeBucketDeltas(bucketDeltas, item.effects.bucketDeltas);
+      if (item.effects.vulnerabilities) {
+        for (const cause of Object.keys(deathMods)) {
+          deathMods[cause] += item.effects.vulnerabilities[cause] || 0;
+        }
+      }
+    }
+    return { scoreDelta, bucketDeltas, deathMods };
+  }
+
+  function calculateQuestionEffects(state) {
+    const answerProfile = calculateAnswerProfile(state);
+    const buildBuckets = calculateBuildBuckets(state.stats);
+    const alignment = CATEGORIES.reduce((sum, category) => sum + (100 - Math.abs(buildBuckets[category] - answerProfile.buckets[category])), 0) / CATEGORIES.length;
+    const scoreDelta = Math.round(answerProfile.answerQuality * 2.5 + (alignment - 50) * 0.4);
+    const riskPenalty = Math.max(0, 30 - answerProfile.answerQuality * 3);
+    return { scoreDelta, bucketDeltas: answerProfile.buckets, alignment, answerQuality: answerProfile.answerQuality, riskPenalty };
+  }
+
+  function calculateResult(state) {
+    const scenario = getScenarioById(state.scenarioId);
+    const companion = getCompanionById(state.companionId);
+    const highestStat = getHighestStat(state);
+    const lowestStat = getLowestStat(state);
+    const baseScore = calculateBaseStatScore(state.stats);
+    const baseBuckets = calculateBuildBuckets(state.stats);
+    const companionEffects = calculateCompanionEffects(state);
+    const traitEffects = calculateTraitEffects(state);
+    const inventoryEffects = calculateInventoryEffects(state);
+    const questionEffects = calculateQuestionEffects(state);
+    const finalBuildBuckets = normalizeBuckets({
+      combat: baseBuckets.combat + companionEffects.bucketDeltas.combat + traitEffects.bucketDeltas.combat + inventoryEffects.bucketDeltas.combat,
+      stealth: baseBuckets.stealth + companionEffects.bucketDeltas.stealth + traitEffects.bucketDeltas.stealth + inventoryEffects.bucketDeltas.stealth,
+      diplomacy: baseBuckets.diplomacy + companionEffects.bucketDeltas.diplomacy + traitEffects.bucketDeltas.diplomacy + inventoryEffects.bucketDeltas.diplomacy,
+      scavenging: baseBuckets.scavenging + companionEffects.bucketDeltas.scavenging + traitEffects.bucketDeltas.scavenging + inventoryEffects.bucketDeltas.scavenging,
+      luck: baseBuckets.luck + companionEffects.bucketDeltas.luck + traitEffects.bucketDeltas.luck + inventoryEffects.bucketDeltas.luck,
+    });
+    const age = clamp(Number(state.character.age) || 25, 18, 75);
+    const ageMultiplier = clamp(1.02 - Math.abs(age - 30) / 120, 0.85, 1.08);
+    const sexMultiplier = SEX_OPTIONS.find((option) => option.id === state.character.sex)?.scoreMultiplier || 1;
+    const scenarioMultiplier = scenario ? scenario.difficultyMultiplier : 1;
+    const rawBuild = 44 + (baseScore - 50) * 0.48 + companionEffects.scoreDelta + traitEffects.scoreDelta + inventoryEffects.scoreDelta + questionEffects.scoreDelta;
+    const baseChance = clamp(Math.round(rawBuild * ageMultiplier * sexMultiplier * scenarioMultiplier), 5, 98);
+    const riskBuffer = Math.max(0, 26 - questionEffects.answerQuality * 2.5 - (finalBuildBuckets.luck / 3));
+    const firstMonth = clamp(Math.round(baseChance + 8 - riskBuffer * 0.35), 5, 99);
+    const thirdMonth = clamp(Math.round(baseChance + 2 - riskBuffer * 0.2), 3, 98);
+    const oneYear = clamp(Math.round(baseChance - 8 - riskBuffer * 0.1), 1, 95);
+    const answerProfile = calculateAnswerProfile(state);
+    const strongestCategory = pickBestCategory(finalBuildBuckets);
+    const weakestCategory = pickWorstCategory(finalBuildBuckets);
+    const causeResult = computeDeathCauseBreakdown({ state, scenario, lowestStat, finalBuckets: finalBuildBuckets, companionEffects, traitEffects, inventoryEffects });
+    const topCause = causeResult[0];
+    const lifespan = calculateProjectedLifespan(firstMonth, state, finalBuildBuckets, scenario);
+    return {
+      state,
+      scenario,
+      companion,
+      highestStat,
+      lowestStat,
+      baseScore: roundToOne(baseScore),
+      companionEffects,
+      traitEffects,
+      inventoryEffects,
+      answerEffects: questionEffects,
+      finalBuildBuckets,
+      firstMonth,
+      thirdMonth,
+      oneYear,
+      strongestCategory,
+      weakestCategory,
+      causeResult,
+      topCause,
+      tier: getSurvivalTier(Math.round((firstMonth + thirdMonth + oneYear) / 3)),
+      lifespan,
+      verdict: generateVerdict({ state, scenario, companion, highestStat, lowestStat, strongestCategory, weakestCategory, topCause, firstMonth, thirdMonth, oneYear, companionEffects, answerProfile, lifespan }),
+    };
+  }
+
   function calculateAnswerProfile(state) {
-    const scenarioQuestions = getQuestionSet(state.scenarioId);
+    const scenarioQuestions = getActiveQuestionSet(state);
     const totals = { combat: 0, stealth: 0, diplomacy: 0, scavenging: 0, luck: 0 };
     let totalScore = 0;
     const chosenLabels = [];
@@ -782,7 +965,7 @@
   }
 
   function computeDeathCauseBreakdown(result) {
-    const { finalBuckets, scenario, lowestStat, companionEffects, perkEffects } = result;
+    const { finalBuckets, scenario, lowestStat, companionEffects, traitEffects, inventoryEffects } = result;
     let weights = { raiders: 24, radiation: 20, starvation: 18, betrayal: 12, random: 20 };
     if (scenario.id === "tvshow") {
       weights.raiders += 8;
@@ -810,7 +993,8 @@
     }
     if (lowestStat.id === "luck") weights.random += 5;
     for (const cause of Object.keys(weights)) {
-      weights[cause] += perkEffects.deathMods[cause] || 0;
+      weights[cause] += traitEffects.deathMods[cause] || 0;
+      weights[cause] += inventoryEffects.deathMods[cause] || 0;
       weights[cause] = Math.max(4, weights[cause]);
     }
     const total = Object.values(weights).reduce((sum, value) => sum + value, 0);
@@ -863,89 +1047,34 @@
   }
 
   function generateVerdict(context) {
-    const { state, scenario, companion, highestStat, lowestStat, strongestCategory, weakestCategory, topCause, finalChance, companionEffects, answerProfile, lifespan } = context;
+    const { state, scenario, companion, highestStat, lowestStat, strongestCategory, weakestCategory, topCause, firstMonth, thirdMonth, oneYear, companionEffects, answerProfile, lifespan } = context;
+    const finalChance = Math.round((firstMonth + thirdMonth + oneYear) / 3);
     const scoreBand = getScoreBand(finalChance);
     const toneLine = VERDICT_TEMPLATES.tones[scenario.tone];
     const style = describePlaystyle(answerProfile.buckets);
-    const perksText = state.perks.map((perkId) => getPerkById(perkId)?.label).filter(Boolean).join(" and ");
+    const traitLabels = state.traits.map((traitId) => getTraitById(traitId)?.label).filter(Boolean).join(" and ") || "Your chosen traits";
+    const itemLabels = state.inventory.map((itemId) => getItemById(itemId)?.label).filter(Boolean).join(" and ") || "your equipment";
     const recommendation = VERDICT_TEMPLATES.recommendations[topCause.id];
     const companionLine = companion ? `${companion.label} gives you ${companionEffects.sameWorld ? "native-world chemistry" : "a risky cross-world partnership"}.` : "Without a reliable companion, every mistake lands harder.";
     return [
       scoreBand.intro,
       `Your ${highestStat.label} (${state.stats[highestStat.id]}) is carrying this build, while ${lowestStat.label} (${state.stats[lowestStat.id]}) remains the seam the wasteland will pry open. You play like a ${style}, so this run works best when you lean into ${strongestCategory} instead of forcing ${weakestCategory}.`,
       `${companionLine} ${toneLine}`,
-      `${perksText || "Your perk package"} plus those answers put you at ${finalChance}% survival for the first 90 days, with ${topCause.label.toLowerCase()} still the most likely way this run ends.`,
-      `Projected lifespan: about ${lifespan.text}, maybe ${lifespan.bestCaseText} if your first alliance holds. Recommendation: ${recommendation}`,
+      `${traitLabels} and ${itemLabels} combine with your answers to give you ${firstMonth}% survival in month one, ${thirdMonth}% by month three, and ${oneYear}% at one year.`,
+      `${topCause.label} is the most likely failure mode, which makes this run feel particularly fragile around ${topCause.label.toLowerCase()}. Projected lifespan: about ${lifespan.text}, maybe ${lifespan.bestCaseText} if you keep your strategy tight. Recommendation: ${recommendation}`,
     ].join(" ");
   }
 
-  function calculateResult(state) {
-    const scenario = getScenarioById(state.scenarioId);
-    const companion = getCompanionById(state.companionId);
-    const highestStat = getHighestStat(state);
-    const lowestStat = getLowestStat(state);
-    const baseScore = calculateBaseStatScore(state.stats);
-    const baseBuckets = calculateBuildBuckets(state.stats);
-    const perkEffects = calculatePerkEffects(state);
-    const companionEffects = calculateCompanionEffects(state);
-    const buildBuckets = normalizeBuckets({
-      combat: baseBuckets.combat + perkEffects.bucketDeltas.combat + companionEffects.bucketDeltas.combat,
-      stealth: baseBuckets.stealth + perkEffects.bucketDeltas.stealth + companionEffects.bucketDeltas.stealth,
-      diplomacy: baseBuckets.diplomacy + perkEffects.bucketDeltas.diplomacy + companionEffects.bucketDeltas.diplomacy,
-      scavenging: baseBuckets.scavenging + perkEffects.bucketDeltas.scavenging + companionEffects.bucketDeltas.scavenging,
-      luck: baseBuckets.luck + perkEffects.bucketDeltas.luck + companionEffects.bucketDeltas.luck,
-    });
-    const answerProfile = calculateAnswerProfile(state);
-    const answeredCount = getQuestionAnswerCount(state);
-    const alignment = answeredCount === 0
-      ? 50
-      : CATEGORIES.reduce((sum, category) => sum + (100 - Math.abs(buildBuckets[category] - answerProfile.buckets[category])), 0) / CATEGORIES.length;
-    const questionDelta = answeredCount === 0
-      ? 0
-      : answerProfile.answerQuality * 0.8 + (alignment - 50) * 0.6;
-    const preDifficulty = baseScore + perkEffects.scoreDelta + companionEffects.scoreDelta + questionDelta;
-    const rawChance = preDifficulty * scenario.difficultyMultiplier * companionEffects.trustModifier;
-    const finalChance = clamp(Math.round(rawChance), 1, 99);
-    const finalBuckets = normalizeBuckets({
-      combat: (buildBuckets.combat + answerProfile.buckets.combat) / 2,
-      stealth: (buildBuckets.stealth + answerProfile.buckets.stealth) / 2,
-      diplomacy: (buildBuckets.diplomacy + answerProfile.buckets.diplomacy) / 2,
-      scavenging: (buildBuckets.scavenging + answerProfile.buckets.scavenging) / 2,
-      luck: (buildBuckets.luck + answerProfile.buckets.luck) / 2,
-    });
-    const strongestCategory = pickBestCategory(finalBuckets);
-    const weakestCategory = pickWorstCategory(finalBuckets);
-    const lifespan = calculateProjectedLifespan(finalChance, state, finalBuckets, scenario);
-    const deathBreakdown = computeDeathCauseBreakdown({ state, scenario, lowestStat, finalBuckets, companionEffects, perkEffects });
-    const topCause = deathBreakdown[0];
-    return {
-      state,
-      scenario,
-      companion,
-      highestStat,
-      lowestStat,
-      baseScore: roundToOne(baseScore),
-      perkEffects,
-      companionEffects,
-      answerProfile,
-      alignment: roundToOne(alignment),
-      questionDelta: roundToOne(questionDelta),
-      preDifficulty: roundToOne(preDifficulty),
-      rawChance: roundToOne(rawChance),
-      finalChance,
-      finalBuckets,
-      strongestCategory,
-      weakestCategory,
-      deathBreakdown,
-      topCause,
-      tier: getSurvivalTier(finalChance),
-      lifespan,
-      verdict: generateVerdict({ state, scenario, companion, highestStat, lowestStat, strongestCategory, weakestCategory, topCause, finalChance, companionEffects, answerProfile, lifespan }),
-    };
-  }
-
   function encodeShareState(state) {
-    const payload = { s: state.stats, p: state.perks, sc: state.scenarioId, c: state.companionId, a: state.answers };
+    const payload = {
+      s: state.stats,
+      ch: { name: state.character.name, age: state.character.age, sex: state.character.sex },
+      sc: state.scenarioId,
+      c: state.companionId,
+      t: state.traits,
+      i: state.inventory,
+      a: state.answers,
+    };
     const json = JSON.stringify(payload);
     if (typeof btoa === "function") {
       return btoa(unescape(encodeURIComponent(json))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
@@ -977,6 +1106,12 @@
         if (Number.isFinite(value)) next.stats[stat.id] = clamp(Math.round(value), stat.min, stat.max);
       }
     }
+    if (raw.ch && typeof raw.ch === "object") {
+      if (typeof raw.ch.name === "string") next.character.name = String(raw.ch.name).slice(0, 60);
+      const ageValue = Number(raw.ch.age);
+      if (Number.isFinite(ageValue)) next.character.age = clamp(Math.round(ageValue), 18, 75);
+      if (raw.ch.sex === "male" || raw.ch.sex === "female") next.character.sex = raw.ch.sex;
+    }
     // Ensure total SPECIAL points do not exceed the allowed total (45).
     const currentTotal = sumValues(next.stats);
     if (currentTotal > 45) {
@@ -996,11 +1131,12 @@
         excess--;
       }
     }
-    if (Array.isArray(raw.p)) next.perks = raw.p.filter((id) => getPerkById(id)).slice(0, 2);
+    if (Array.isArray(raw.t)) next.traits = raw.t.filter((id) => getTraitById(id)).slice(0, 2);
+    if (Array.isArray(raw.i)) next.inventory = raw.i.filter((id) => getItemById(id)).slice(0, 2);
     if (typeof raw.sc === "string" && getScenarioById(raw.sc)) next.scenarioId = raw.sc;
     if (typeof raw.c === "string" && getCompanionById(raw.c)) next.companionId = raw.c;
     if (raw.a && typeof raw.a === "object") {
-      const allowedQuestionIds = new Set(getQuestionSet(next.scenarioId).map((question) => question.id));
+      const allowedQuestionIds = new Set(getActiveQuestionSet(next).map((question) => question.id));
       for (const [questionId, rawAnswer] of Object.entries(raw.a)) {
         const answerIndex = Number(rawAnswer);
         if (allowedQuestionIds.has(questionId) && Number.isInteger(answerIndex)) {
@@ -1013,7 +1149,7 @@
       const anyNonZero = Object.values(next.answers).some((v) => Number(v) !== 0);
       if (!anyNonZero) next.answers = {};
     }
-    const rawStep = raw.currentStep ? clamp(Number(raw.currentStep) || 1, 1, 4) : 1;
+    const rawStep = raw.currentStep ? clamp(Number(raw.currentStep) || 1, 1, 3) : 1;
     next.showMath = typeof raw.showMath === "boolean" ? raw.showMath : next.showMath;
     // If the incoming state is effectively pristine (no meaningful choices made),
     // do not advance the wizard based on a stale currentStep value from the payload.
@@ -1132,7 +1268,7 @@
 
   function fillMissingAnswers(state) {
     const answers = { ...state.answers };
-    for (const question of getQuestionSet(state.scenarioId)) {
+    for (const question of getActiveQuestionSet(state)) {
       if (typeof answers[question.id] !== "number") answers[question.id] = 0;
     }
     return answers;
@@ -1179,10 +1315,15 @@
   }
 
   function validateData() {
-    const perkIds = new Set();
-    for (const perk of PERKS) {
-      if (perkIds.has(perk.id)) throw new Error(`Duplicate perk id: ${perk.id}`);
-      perkIds.add(perk.id);
+    const traitIds = new Set();
+    for (const trait of TRAITS) {
+      if (traitIds.has(trait.id)) throw new Error(`Duplicate trait id: ${trait.id}`);
+      traitIds.add(trait.id);
+    }
+    const itemIds = new Set();
+    for (const item of INVENTORY_ITEMS) {
+      if (itemIds.has(item.id)) throw new Error(`Duplicate inventory item id: ${item.id}`);
+      itemIds.add(item.id);
     }
     const scenarioIds = new Set();
     for (const scenario of SCENARIOS) {
@@ -1273,25 +1414,57 @@
 
     handleChange(event) {
       const target = event.target;
-      if (target.matches("[data-perk-id]")) {
-        const perkId = target.getAttribute("data-perk-id");
-        let nextPerks = this.state.perks.slice();
+      if (target.matches("[data-character]")) {
+        const key = target.getAttribute("data-character");
+        const nextCharacter = { ...this.state.character, [key]: key === "age" ? Number(target.value) : target.value };
+        let nextState = { ...this.state, character: nextCharacter, flash: "" };
+        if (key === "sex") {
+          const allowedIds = new Set(getActiveQuestionSet(nextState).map((question) => question.id));
+          const nextAnswers = {};
+          for (const [questionId, answerIndex] of Object.entries(this.state.answers)) {
+            if (allowedIds.has(questionId)) nextAnswers[questionId] = answerIndex;
+          }
+          nextState.answers = nextAnswers;
+        }
+        this.patchState(nextState);
+        return;
+      }
+      if (target.matches("[data-trait-id]")) {
+        const traitId = target.getAttribute("data-trait-id");
+        let nextTraits = this.state.traits.slice();
         if (target.checked) {
-          if (nextPerks.length >= 2) {
+          if (nextTraits.length >= 2) {
             target.checked = false;
-            this.patchState({ flash: "You can only lock in two perks for this run." });
+            this.patchState({ flash: "You can only choose two traits." });
             return;
           }
-          nextPerks.push(perkId);
+          nextTraits.push(traitId);
         } else {
-          nextPerks = nextPerks.filter((id) => id !== perkId);
+          nextTraits = nextTraits.filter((id) => id !== traitId);
         }
-        this.patchState({ perks: nextPerks, flash: "" });
+        this.patchState({ traits: nextTraits, flash: "" });
+        return;
+      }
+      if (target.matches("[data-item-id]")) {
+        const itemId = target.getAttribute("data-item-id");
+        let nextInventory = this.state.inventory.slice();
+        if (target.checked) {
+          if (nextInventory.length >= 2) {
+            target.checked = false;
+            this.patchState({ flash: "You can only equip two items." });
+            return;
+          }
+          nextInventory.push(itemId);
+        } else {
+          nextInventory = nextInventory.filter((id) => id !== itemId);
+        }
+        this.patchState({ inventory: nextInventory, flash: "" });
         return;
       }
       if (target.matches("[data-scenario-select]")) {
         const scenarioId = target.value;
-        const allowedQuestionIds = new Set(getQuestionSet(scenarioId).map((question) => question.id));
+        const nextState = { ...this.state, scenarioId, flash: "" };
+        const allowedQuestionIds = new Set(getActiveQuestionSet(nextState).map((question) => question.id));
         const nextAnswers = {};
         for (const [questionId, answerIndex] of Object.entries(this.state.answers)) {
           if (allowedQuestionIds.has(questionId)) nextAnswers[questionId] = answerIndex;
@@ -1450,22 +1623,22 @@
     goToNextStep() {
       if (this.state.currentStep === 1 && !isStepOneValid(this.state)) {
         const remaining = getRemainingSpecialPoints(this.state.stats);
-        this.patchState({ flash: remaining !== 0 ? `You need to land exactly on 45 total SPECIAL points. Remaining: ${remaining}.` : "Pick exactly two perks before continuing." });
+        this.patchState({ flash: remaining !== 0 ? `You need to land exactly on 45 total SPECIAL points. Remaining: ${remaining}.` : "Pick exactly two traits before continuing." });
         return;
       }
       if (this.state.currentStep === 2 && !isStepTwoValid(this.state)) {
-        this.patchState({ flash: "Choose both a wasteland and a companion before continuing." });
+        this.patchState({ flash: "Choose a companion, two items, and answer all survival challenges before continuing." });
         return;
       }
       if (this.state.currentStep === 3 && !isStepThreeValid(this.state)) {
-        this.patchState({ flash: "Answer all 8 survival questions to unlock the verdict." });
+        this.patchState({ flash: "Complete the final verdict step before downloading your build." });
         return;
       }
-      this.patchState({ currentStep: clamp(this.state.currentStep + 1, 1, 4), flash: "" });
+      this.patchState({ currentStep: clamp(this.state.currentStep + 1, 1, 3), flash: "" });
     }
 
     getStepLabel() {
-      return ["Build Your Dweller", "Choose Your Wasteland", "Face 8 Survival Scenarios", "Receive Your Verdict"][this.state.currentStep - 1];
+      return ["Build Your Survivor", "Choose Gear & Scenarios", "Final Verdict"][this.state.currentStep - 1];
     }
 
     getFilteredCompanions() {
@@ -1502,15 +1675,15 @@
     }
 
     renderSidebar(previewResult) {
-      const filtered = normalizeBuckets(previewResult.finalBuckets);
+      const filtered = normalizeBuckets(calculateBuildBuckets(this.state.stats));
       return `
-        <h3>Live Wasteland Readout</h3>
+        <h3>Current Character Build</h3>
         <div class="wc-summary-grid">
-          <div class="wc-summary-card"><small>Preview Survival</small><strong>${previewResult.finalChance}%</strong><div>${escapeHtml(previewResult.tier)}</div></div>
-          <div class="wc-summary-card"><small>Scenario + Companion</small><div>${escapeHtml(getScenarioById(this.state.scenarioId)?.label || "Not chosen")}</div><div>${escapeHtml(getCompanionById(this.state.companionId)?.label || "No companion locked")}</div></div>
-          <div class="wc-summary-card"><small>Best Fit</small><div>${escapeHtml(capitalize(previewResult.strongestCategory))}</div></div>
+          <div class="wc-summary-card"><small>Name</small><strong>${escapeHtml(this.state.character.name || "Unnamed")}</strong><div>${escapeHtml(getScenarioById(this.state.scenarioId)?.label || "Not chosen")}</div></div>
+          <div class="wc-summary-card"><small>Companion</small><div>${escapeHtml(getCompanionById(this.state.companionId)?.label || "None")}</div><div>${escapeHtml(this.state.character.sex === "female" ? "Female" : "Male")}, Age ${escapeHtml(String(this.state.character.age))}</div></div>
+          <div class="wc-summary-card"><small>Traits + Gear</small><div>${escapeHtml((this.state.traits || []).map((id) => getTraitById(id)?.label).filter(Boolean).join(", ") || "Pick 2 traits")}</div><div>${escapeHtml((this.state.inventory || []).map((id) => getItemById(id)?.label).filter(Boolean).join(", ") || "Pick 2 items")}</div></div>
         </div>
-        <h3 style="margin-top:20px;">Hidden Survival Buckets</h3>
+        <h3 style="margin-top:20px;">Survival Buckets</h3>
         <div class="wc-sidebar-list">
           ${CATEGORIES.map((category) => `
             <div class="wc-sidebar-list-item">
@@ -1522,10 +1695,9 @@
             </div>
           `).join("")}
         </div>
-        <h3 style="margin-top:20px;">Current Build</h3>
+        <h3 style="margin-top:20px;">Current SPECIAL</h3>
         <div class="wc-sidebar-list">
           ${SPECIAL_STATS.map((stat) => renderBreakdownRow(stat.label, this.state.stats[stat.id])).join("")}
-          ${renderBreakdownRow("Perks", this.state.perks.map((perkId) => getPerkById(perkId)?.label).filter(Boolean).join(", ") || "Choose 2")}
         </div>
       `;
     }
@@ -1533,73 +1705,85 @@
     renderStepOne(previewResult) {
       const remaining = getRemainingSpecialPoints(this.state.stats);
       return `
-        <div class="wc-step-head"><div><div class="wc-step-tag">01 • Build Your Dweller</div><h3 class="wc-step-title">Allocate S.P.E.C.I.A.L. and choose 2 perks.</h3><p class="wc-step-copy">Everyone starts at 5. Your final S.P.E.C.I.A.L. total must land on 45, which gives you 10 bonus points to distribute while still letting you hollow out weaker stats for a sharper build.</p></div></div>
-        <div class="wc-meter-row">
-          <div class="wc-meter"><span>Points Remaining</span><strong>${remaining}</strong></div>
-          <div class="wc-meter"><span>Perks Locked</span><strong>${this.state.perks.length}/2</strong></div>
-          <div class="wc-meter"><span>Live Survival Readout</span><strong>${previewResult.finalChance}%</strong></div>
-        </div>
+        <div class="wc-step-head"><div><div class="wc-step-tag">01 • Build Your Survivor</div><h3 class="wc-step-title">Create your character and allocate SPECIAL.</h3><p class="wc-step-copy">Choose a name, age, sex, favorite wasteland, and distribute exactly 45 SPECIAL points. Then lock in two survival traits.</p></div></div>
         <div class="wc-grid-2">
-          ${SPECIAL_STATS.map((stat) => `
-            <div class="wc-stat-card">
-              <div class="wc-stat-head"><strong>${stat.label}</strong><span class="wc-stat-value">${this.state.stats[stat.id]}</span></div>
-              <p>${escapeHtml(stat.description)}</p>
-              <input class="wc-range" type="range" min="${stat.min}" max="${stat.max}" step="1" value="${this.state.stats[stat.id]}" data-stat-id="${stat.id}" aria-label="${stat.label}" />
+          <div class="wc-choice-card">
+            <div class="wc-field"><label for="wc-character-name">Name</label><input id="wc-character-name" class="wc-input" type="text" value="${escapeHtml(this.state.character.name)}" data-character="name" placeholder="Enter name" /></div>
+            <div class="wc-field"><label for="wc-character-age">Age</label><input id="wc-character-age" class="wc-input" type="number" min="18" max="75" value="${escapeHtml(String(this.state.character.age))}" data-character="age" /></div>
+            <div class="wc-field"><label for="wc-character-sex">Sex</label><select id="wc-character-sex" class="wc-select" data-character="sex">${SEX_OPTIONS.map((option) => `<option value="${option.id}" ${this.state.character.sex === option.id ? "selected" : ""}>${escapeHtml(option.label)}</option>`).join("")}</select></div>
+            <div class="wc-field"><label for="wc-scenario-select">Favorite Fallout Game / Show</label><select id="wc-scenario-select" class="wc-select" data-scenario-select>${SCENARIOS.map((item) => `<option value="${item.id}" ${item.id === this.state.scenarioId ? "selected" : ""}>${escapeHtml(item.label)}</option>`).join("")}</select></div>
+          </div>
+          <div class="wc-choice-card">
+            <div class="wc-meter-row" style="margin-bottom:16px;">
+              <div class="wc-meter"><span>Points Remaining</span><strong>${remaining}</strong></div>
+              <div class="wc-meter"><span>Traits Selected</span><strong>${(this.state.traits || []).length}/2</strong></div>
             </div>
-          `).join("")}
+            <div class="wc-grid-2">
+              ${SPECIAL_STATS.map((stat) => `
+                <div class="wc-stat-card">
+                  <div class="wc-stat-head"><strong>${stat.label}</strong><span class="wc-stat-value">${this.state.stats[stat.id]}</span></div>
+                  <p>${escapeHtml(stat.description)}</p>
+                  <input class="wc-range" type="range" min="${stat.min}" max="${stat.max}" step="1" value="${this.state.stats[stat.id]}" data-stat-id="${stat.id}" aria-label="${stat.label}" />
+                </div>
+              `).join("")}
+            </div>
+          </div>
         </div>
-        <div class="wc-step-head" style="margin-top:22px;"><div><div class="wc-step-tag">Perk Loadout</div><h3 class="wc-step-title">Choose two low-level perks.</h3><p class="wc-step-copy">These perks are universal, recognizable, and intentionally scenario-sensitive so the same build feels different in different wastelands.</p></div></div>
+        <div class="wc-step-head" style="margin-top:22px;"><div><div class="wc-step-tag">Traits</div><h3 class="wc-step-title">Choose two traits.</h3><p class="wc-step-copy">Each trait gives you a useful advantage and a calculated drawback.</p></div></div>
         <div class="wc-perks">
-          ${PERKS.map((perk) => `
+          ${TRAITS.map((trait) => `
             <label class="wc-perk">
-              <input type="checkbox" data-perk-id="${perk.id}" ${this.state.perks.includes(perk.id) ? "checked" : ""} />
+              <input type="checkbox" data-trait-id="${trait.id}" ${this.state.traits.includes(trait.id) ? "checked" : ""} />
               <div class="wc-perk-card">
-                <div class="wc-choice-head"><strong>${escapeHtml(perk.label)}</strong><span>${this.state.perks.includes(perk.id) ? "Equipped" : "Available"}</span></div>
-                <p>${escapeHtml(perk.description)}</p>
-                <div class="wc-pill-row">${perk.tags.map((tag) => `<span class="wc-pill">${escapeHtml(tag)}</span>`).join("")}</div>
+                <div class="wc-choice-head"><strong>${escapeHtml(trait.label)}</strong><span>${this.state.traits.includes(trait.id) ? "Selected" : "Available"}</span></div>
+                <p>${escapeHtml(trait.description)}</p>
               </div>
             </label>
           `).join("")}
         </div>
-        ${this.renderFooter({ canGoBack: false, canGoNext: isStepOneValid(this.state), nextLabel: "Choose Wasteland" })}
+        ${this.renderFooter({ canGoBack: false, canGoNext: isStepOneValid(this.state), nextLabel: "Choose Gear & Scenarios" })}
       `;
     }
 
     renderStepTwo(previewResult) {
       const scenario = getScenarioById(this.state.scenarioId);
       const companionEffects = calculateCompanionEffects(this.state);
+      const questions = getActiveQuestionSet(this.state);
+      const answeredCount = getQuestionAnswerCount(this.state);
       return `
-        <div class="wc-step-head"><div><div class="wc-step-tag">02 • Choose Your Wasteland</div><h3 class="wc-step-title">Pick a scenario and a companion.</h3><p class="wc-step-copy">Your chosen world sets the difficulty floor and question pack. Your companion changes trust, combat flow, and the kinds of mistakes you can recover from.</p></div></div>
+        <div class="wc-step-head"><div><div class="wc-step-tag">02 • Gear, Companion, & Scenarios</div><h3 class="wc-step-title">Choose a companion, two items, and answer six survival challenges.</h3><p class="wc-step-copy">Your chosen wasteland determines the story questions. Companion and gear change your survival profile in combat, scavenging, diplomacy, stealth, and luck.</p></div></div>
         <div class="wc-grid-2">
           <div class="wc-choice-card">
             <div class="wc-field"><label for="wc-scenario-select">Favorite Fallout Game / Show</label><select id="wc-scenario-select" class="wc-select" data-scenario-select>${SCENARIOS.map((item) => `<option value="${item.id}" ${item.id === this.state.scenarioId ? "selected" : ""}>${escapeHtml(item.label)}</option>`).join("")}</select></div>
-            <p>${escapeHtml(scenario.label)} baseline modifier: x${scenario.difficultyMultiplier.toFixed(2)}. Tone: ${escapeHtml(VERDICT_TEMPLATES.tones[scenario.tone])}</p>
+            <p>${escapeHtml(scenario.label)} baseline difficulty: x${scenario.difficultyMultiplier.toFixed(2)}. Tone: ${escapeHtml(VERDICT_TEMPLATES.tones[scenario.tone])}</p>
           </div>
           <div class="wc-choice-card">
             <label class="wc-filter-label" for="wc-companion-filter">Search companions</label>
             <input id="wc-companion-filter" class="wc-input" data-companion-filter value="${escapeHtml(this.state.companionFilter)}" placeholder="Type Dogmeat, Boone, Nick, The Ghoul..." />
-            <div class="wc-field" style="margin-top:12px;"><label for="wc-companion-select">Choose one companion</label><select id="wc-companion-select" class="wc-select" data-companion-select size="12">${this.getFilteredCompanions()}</select></div>
+            <div class="wc-field" style="margin-top:12px;"><label for="wc-companion-select">Choose one companion</label><select id="wc-companion-select" class="wc-select" data-companion-select size="10">${this.getFilteredCompanions()}</select></div>
           </div>
         </div>
-        <div class="wc-callout"><strong>Synergy readout:</strong> ${escapeHtml(companionEffects.specialFlavor)} ${escapeHtml(companionEffects.synergyNote)} ${previewResult.companion ? `This pairing currently projects ${previewResult.finalChance}% survival.` : "Pick a companion to unlock the full synergy readout."}</div>
-        ${this.renderFooter({ canGoBack: true, canGoNext: isStepTwoValid(this.state), nextLabel: "Answer Survival Questions" })}
-      `;
-    }
-
-    renderStepThree() {
-      const questions = getQuestionSet(this.state.scenarioId);
-      const answeredCount = getQuestionAnswerCount(this.state);
-      return `
-        <div class="wc-step-head"><div><div class="wc-step-tag">03 • Survival Scenarios</div><h3 class="wc-step-title">Answer 8 scenario-specific survival questions.</h3><p class="wc-step-copy">Each answer feeds hidden survival categories: combat, stealth, diplomacy, scavenging, and luck. The verdict is deterministic. The wasteland is still mean.</p></div></div>
-        <div class="wc-meter-row">
-          <div class="wc-meter"><span>Answered</span><strong>${answeredCount}/8</strong></div>
-          <div class="wc-meter"><span>Scenario</span><strong>${escapeHtml(getScenarioById(this.state.scenarioId).label)}</strong></div>
-          <div class="wc-meter"><span>Companion</span><strong>${escapeHtml(getCompanionById(this.state.companionId)?.label || "Not set")}</strong></div>
+        <div class="wc-step-head" style="margin-top:22px;"><div><div class="wc-step-tag">Inventory</div><h3 class="wc-step-title">Pick two items for your build.</h3><p class="wc-step-copy">Equipment changes your survival strengths and the likely ways the wasteland will test you.</p></div></div>
+        <div class="wc-perks">
+          ${INVENTORY_ITEMS.map((item) => `
+            <label class="wc-perk">
+              <input type="checkbox" data-item-id="${item.id}" ${this.state.inventory.includes(item.id) ? "checked" : ""} />
+              <div class="wc-perk-card">
+                <div class="wc-choice-head"><strong>${escapeHtml(item.label)}</strong><span>${this.state.inventory.includes(item.id) ? "Equipped" : "Available"}</span></div>
+                <p>${escapeHtml(item.description)}</p>
+              </div>
+            </label>
+          `).join("")}
+        </div>
+        <div class="wc-meter-row" style="margin-top:22px;">
+          <div class="wc-meter"><span>Answered</span><strong>${answeredCount}/${questions.length}</strong></div>
+          <div class="wc-meter"><span>Companion</span><strong>${escapeHtml(getCompanionById(this.state.companionId)?.label || "None chosen")}</strong></div>
+          <div class="wc-meter"><span>Inventory</span><strong>${this.state.inventory.length}/2</strong></div>
         </div>
         <div class="wc-questions">
           ${questions.map((question, index) => `
             <article class="wc-question-card">
-              <div class="wc-question-count">Question ${index + 1}</div>
+              <div class="wc-question-count">Challenge ${index + 1}</div>
               <p><strong>${escapeHtml(question.prompt)}</strong></p>
               <div class="wc-answer-list" role="radiogroup" aria-label="${escapeHtml(question.prompt)}">
                 ${question.choices.map((choice, choiceIndex) => `
@@ -1612,55 +1796,51 @@
             </article>
           `).join("")}
         </div>
-        ${this.renderFooter({ canGoBack: true, canGoNext: isStepThreeValid(this.state), nextLabel: "Reveal Verdict" })}
+        <div class="wc-callout"><strong>Hint:</strong> Four questions come from your selected wasteland pack, and two are shared challenges across all builds.</div>
+        ${this.renderFooter({ canGoBack: true, canGoNext: isStepTwoValid(this.state), nextLabel: "Reveal Verdict" })}
       `;
     }
 
-    renderStepFour(result) {
+    renderStepThree(result) {
+      const questions = getActiveQuestionSet(this.state);
       return `
-        <div class="wc-step-head"><div><div class="wc-step-tag">04 • Final Verdict</div><h3 class="wc-step-title">Your brutally personal wasteland verdict.</h3><p class="wc-step-copy">No backend. No API call. No dice roll. Just your build, your companion, your answers, and a transparent survival formula.</p></div></div>
+        <div class="wc-step-head"><div><div class="wc-step-tag">03 • Final Verdict</div><h3 class="wc-step-title">A4-ready verdict with survival math and likely failure modes.</h3><p class="wc-step-copy">Your final build is summarized here. Use download to save a printable A4 result page for your vault notes.</p></div></div>
         <section class="wc-results-grid">
           <div class="wc-result-card wc-result-primary">
-            <small>First 90 days survival chance</small>
-            <div class="wc-survival-number">${result.finalChance}%</div>
-            <p>You are tracking as <strong>${escapeHtml(result.tier)}</strong> in <strong>${escapeHtml(result.scenario.label)}</strong>. Projected lifespan: <strong>${escapeHtml(result.lifespan.text)}</strong>, with a best-case ceiling near <strong>${escapeHtml(result.lifespan.bestCaseText)}</strong>.</p>
+            <small>1-month survival chance</small>
+            <div class="wc-survival-number">${result.firstMonth}%</div>
+            <p>${escapeHtml(result.verdict)}</p>
           </div>
           <div class="wc-result-card">
-            <h3>Cause Of Death Breakdown</h3>
-            <div class="wc-chart-wrap">
-              <div class="wc-chart" role="img" aria-label="Cause of death chart" style="background:${conicGradientForBreakdown(result.deathBreakdown)}"></div>
-              <div class="wc-legend">
-                ${result.deathBreakdown.map((slice) => `<div class="wc-legend-item"><div class="wc-legend-label"><span class="wc-legend-swatch" style="background:${slice.color}"></span><span>${escapeHtml(slice.label)}</span></div><strong>${slice.percentage}%</strong></div>`).join("")}
-              </div>
-            </div>
+            <h3>3-month survival chance</h3>
+            <div class="wc-survival-number">${result.thirdMonth}%</div>
+            <p>Mid-term prospects are shaped by ${escapeHtml(result.strongestCategory)} strength and ${escapeHtml(result.weakestCategory)} weakness.</p>
           </div>
           <div class="wc-result-card">
-            <h3>Breakdown</h3>
-            <div class="wc-sidebar-list">
-              ${renderBreakdownRow("Strongest trait", `${result.highestStat.label} ${this.state.stats[result.highestStat.id]}`)}
-              ${renderBreakdownRow("Biggest weakness", `${result.lowestStat.label} ${this.state.stats[result.lowestStat.id]}`)}
-              ${renderBreakdownRow("Best survival lane", capitalize(result.strongestCategory))}
-              ${renderBreakdownRow("Worst likely mistake", result.topCause.label)}
-              ${renderBreakdownRow("Companion synergy", result.companionEffects.sameWorld ? "Native-world bonus" : "Cross-world trust penalty")}
+            <h3>1-year survival chance</h3>
+            <div class="wc-survival-number">${result.oneYear}%</div>
+            <p>Long-term endurance depends on scavenging, luck, and avoiding ${escapeHtml(result.topCause.label.toLowerCase())}.</p>
+          </div>
+        </section>
+        <section class="wc-result-card">
+          <h3>Cause of death breakdown</h3>
+          <div class="wc-chart-wrap">
+            <div class="wc-chart" role="img" aria-label="Cause of death chart" style="background:${conicGradientForBreakdown(result.causeResult)}"></div>
+            <div class="wc-legend">
+              ${result.causeResult.map((slice) => `<div class="wc-legend-item"><div class="wc-legend-label"><span class="wc-legend-swatch" style="background:${slice.color}"></span><span>${escapeHtml(slice.label)}</span></div><strong>${slice.percentage}%</strong></div>`).join("")}
             </div>
           </div>
         </section>
-        <div class="wc-verdict">${escapeHtml(result.verdict)}</div>
-        ${this.config.showMathPanel && this.state.showMath ? `
-          <div class="wc-math" data-math-panel>
-            <h3>Show The Math</h3>
-            <table><tbody>
-              <tr><td>Weighted S.P.E.C.I.A.L. base</td><td>${result.baseScore}</td></tr>
-              <tr><td>Perk adjustment</td><td>${signed(result.perkEffects.scoreDelta)}</td></tr>
-              <tr><td>Companion synergy</td><td>${signed(result.companionEffects.scoreDelta)}</td></tr>
-              <tr><td>Question alignment + choice profile</td><td>${signed(result.questionDelta)}</td></tr>
-              <tr><td>Pre-difficulty total</td><td>${result.preDifficulty}</td></tr>
-              <tr><td>Scenario difficulty multiplier</td><td>x${result.scenario.difficultyMultiplier.toFixed(2)}</td></tr>
-              <tr><td>Companion trust multiplier</td><td>x${result.companionEffects.trustModifier.toFixed(2)}</td></tr>
-              <tr><td>Final survival chance</td><td>${result.finalChance}%</td></tr>
-            </tbody></table>
+        <section class="wc-result-card">
+          <h3>Final build summary</h3>
+          <div class="wc-sidebar-list">
+            ${renderBreakdownRow("Strongest stat", `${result.highestStat.label} ${this.state.stats[result.highestStat.id]}`)}
+            ${renderBreakdownRow("Weakest stat", `${result.lowestStat.label} ${this.state.stats[result.lowestStat.id]}`)}
+            ${renderBreakdownRow("Top survival lane", capitalize(result.strongestCategory))}
+            ${renderBreakdownRow("Most likely failure", result.topCause.label)}
+            ${renderBreakdownRow("Companion synergy", result.companionEffects.sameWorld ? "Native-world bonus" : "Cross-world trust penalty")}
           </div>
-        ` : ""}
+        </section>
         ${this.renderFooter({ canGoBack: true, canGoNext: false, nextLabel: "", stepFour: true })}
       `;
     }
@@ -1688,9 +1868,9 @@
         };
         previewResult.lifespan = calculateProjectedLifespan(previewResult.finalChance, this.state, previewResult.finalBuckets, getScenarioById(this.state.scenarioId));
       }
-      const result = this.state.currentStep === 4 ? calculateResult(this.state) : previewResult;
-      const completionKey = `${result.finalChance}:${this.state.scenarioId}:${this.state.companionId}:${JSON.stringify(this.state.answers)}`;
-      if (this.state.currentStep === 4 && this.lastCompletionKey !== completionKey && typeof this.config.onComplete === "function") {
+      const result = this.state.currentStep === 3 ? calculateResult(this.state) : previewResult;
+      const completionKey = `${result.firstMonth}:${result.thirdMonth}:${result.oneYear}:${this.state.scenarioId}:${this.state.companionId}:${JSON.stringify(this.state.answers)}`;
+      if (this.state.currentStep === 3 && this.lastCompletionKey !== completionKey && typeof this.config.onComplete === "function") {
         this.config.onComplete(result);
         this.lastCompletionKey = completionKey;
       }
@@ -1703,9 +1883,9 @@
           </div>
           <aside class="wc-status" aria-label="Current run status"><small>Projected survival</small><strong>${previewResult.finalChance}%</strong><div>${escapeHtml(previewResult.tier)} in ${escapeHtml(previewResult.scenario.label)}</div></aside>
         </header>
-        <section class="wc-progress" aria-label="Wizard progress"><div class="wc-progress-row"><span>Step ${this.state.currentStep}/4</span><span>${escapeHtml(this.getStepLabel())}</span></div><div class="wc-progress-track"><div class="wc-progress-fill" style="width:${(this.state.currentStep / 4) * 100}%"></div></div></section>
+        <section class="wc-progress" aria-label="Wizard progress"><div class="wc-progress-row"><span>Step ${this.state.currentStep}/3</span><span>${escapeHtml(this.getStepLabel())}</span></div><div class="wc-progress-track"><div class="wc-progress-fill" style="width:${(this.state.currentStep / 3) * 100}%"></div></div></section>
         <div class="wc-layout">
-          <main class="wc-main-panel">${this.state.currentStep === 1 ? this.renderStepOne(previewResult) : this.state.currentStep === 2 ? this.renderStepTwo(previewResult) : this.state.currentStep === 3 ? this.renderStepThree() : this.renderStepFour(result)}</main>
+          <main class="wc-main-panel">${this.state.currentStep === 1 ? this.renderStepOne(previewResult) : this.state.currentStep === 2 ? this.renderStepTwo(previewResult) : this.renderStepThree(result)}</main>
           <aside class="wc-sidebar">${this.renderSidebar(previewResult)}</aside>
         </div>
         <div class="wc-disclaimer">Unofficial fan-made calculator. This widget is not affiliated with Bethesda, Fallout, Prime Video, or Amazon. It uses original styling and deterministic fan-tool logic for entertainment and blog engagement.</div>
@@ -1729,7 +1909,7 @@
   if (typeof module !== "undefined" && module.exports) {
     module.exports = {
       WastelandCalculator: api,
-      DATA: { SPECIAL_STATS, PERKS, SCENARIOS, COMPANIONS, QUESTION_SETS, DEATH_CAUSE_RULES, VERDICT_TEMPLATES },
+      DATA: { SPECIAL_STATS, TRAITS, INVENTORY_ITEMS, SCENARIOS, COMPANIONS, QUESTION_SETS, DEATH_CAUSE_RULES, VERDICT_TEMPLATES },
       calculateResult,
       validateData,
       buildDefaultState,
@@ -1738,7 +1918,7 @@
       // Expose slugify and a small renderer for testing question HTML in Node
       slugify,
       renderQuestionsHtmlForState(state) {
-        const questions = getQuestionSet(state.scenarioId);
+        const questions = getActiveQuestionSet(state);
         return questions.map((question, index) => `\n          <article class="wc-question-card">\n            <div class="wc-question-count">Question ${index + 1}</div>\n            <p><strong>${escapeHtml(question.prompt)}</strong></p>\n            <div class="wc-answer-list" role="radiogroup" aria-label="${escapeHtml(question.prompt)}">\n              ${question.choices.map((choice, choiceIndex) => `\n                <label class="wc-answer" for="wc-${slugify(question.id)}-${choiceIndex}">\n                  <input id="wc-${slugify(question.id)}-${choiceIndex}" type="radio" name="wc-${slugify(question.id)}" value="${choiceIndex}" data-question-id="${question.id}" ${state.answers[question.id] === choiceIndex ? "checked" : ""} />\n                  <span class="wc-answer-option">${escapeHtml(choice.label)}</span>\n                </label>\n              `).join("")}\n            </div>\n          </article>\n        `).join("");
       },
     };
