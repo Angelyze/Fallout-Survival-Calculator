@@ -5,8 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fallout Survival Calculator</title>
   <style>
-    body { margin: 0; padding: 0; font-family: system-ui, sans-serif; background: #111; }
-    #calculator-container { max-width: 1000px; margin: 20px auto; }
+    body { 
+      margin: 0; 
+      padding: 20px; 
+      background: #111; 
+      font-family: system-ui, sans-serif; 
+    }
+    #calculator-container { 
+      max-width: 1100px; 
+      margin: 0 auto; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+      border-radius: 12px; 
+      overflow: hidden;
+    }
   </style>
 </head>
 <body>
@@ -14,6 +25,28 @@
     <div data-wasteland-calculator></div>
   </div>
 
-  <script src="https://raw.githubusercontent.com/Angelyze/Fallout-Survival-Calculator/main/wasteland-calculator.js"></script>
+  <!-- ✅ Fixed script source (proper MIME type) -->
+  <script src="https://cdn.jsdelivr.net/gh/Angelyze/Fallout-Survival-Calculator@main/wasteland-calculator.js"></script>
+
+  <!-- Safety fallback (in case anything goes wrong) -->
+  <script>
+    window.addEventListener('load', () => {
+      const container = document.querySelector('[data-wasteland-calculator]');
+      if (container && !container.__wastelandCalculatorMounted) {
+        console.warn("Auto-boot didn't trigger – forcing manual init");
+        if (window.WastelandCalculator) {
+          window.WastelandCalculator.init(container, {
+            title: "Fallout Survival Calculator",
+            accentColor: "#ff9000"
+          });
+        } else {
+          container.innerHTML = `<p style="color:#ff9000;text-align:center;padding:40px;font-size:1.2rem;">
+            ❌ Could not load calculator.<br>
+            Please refresh the page.
+          </p>`;
+        }
+      }
+    });
+  </script>
 </body>
 </html>
