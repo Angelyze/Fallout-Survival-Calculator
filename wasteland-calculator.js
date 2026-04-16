@@ -896,8 +896,13 @@
       luck: baseBuckets.luck + perkEffects.bucketDeltas.luck + companionEffects.bucketDeltas.luck,
     });
     const answerProfile = calculateAnswerProfile(state);
-    const alignment = CATEGORIES.reduce((sum, category) => sum + (100 - Math.abs(buildBuckets[category] - answerProfile.buckets[category])), 0) / CATEGORIES.length;
-    const questionDelta = answerProfile.answerQuality * 0.8 + (alignment - 50) * 0.6;
+    const answeredCount = getQuestionAnswerCount(state);
+    const alignment = answeredCount === 0
+      ? 50
+      : CATEGORIES.reduce((sum, category) => sum + (100 - Math.abs(buildBuckets[category] - answerProfile.buckets[category])), 0) / CATEGORIES.length;
+    const questionDelta = answeredCount === 0
+      ? 0
+      : answerProfile.answerQuality * 0.8 + (alignment - 50) * 0.6;
     const preDifficulty = baseScore + perkEffects.scoreDelta + companionEffects.scoreDelta + questionDelta;
     const rawChance = preDifficulty * scenario.difficultyMultiplier * companionEffects.trustModifier;
     const finalChance = clamp(Math.round(rawChance), 1, 99);
@@ -1334,78 +1339,80 @@
     downloadCard() {
       if (!hasDocument) return;
       const result = calculateResult(this.state);
-      const canvas = document.createElement("canvas");
-      canvas.width = 1200;
-      canvas.height = 630;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) {
-        this.patchState({ flash: "Your browser blocked the result card renderer." });
+      const printHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Wasteland Survival Calculator PDF</title>
+<style>
+  body { margin: 0; font-family: Arial, sans-serif; background: #100902; color: #ffd59f; }
+  .page { width: 100%; padding: 28px; box-sizing: border-box; }
+  .card { max-width: 920px; margin: auto; padding: 28px; border-radius: 24px; background: #120b03; border: 1px solid rgba(255,144,0,.25); }
+  .header { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 24px; }
+  .header h1 { margin: 0; font-size: 2.2rem; letter-spacing: .08em; }
+  .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin: 24px 0; }
+  .metric { padding: 16px; border-radius: 16px; background: rgba(255,144,0,.08); border: 1px solid rgba(255,144,0,.18); }
+  .metric strong { display: block; font-size: 1.6rem; margin-top: 8px; color: #ffb56b; }
+  .section { margin-top: 24px; }
+  .section h2 { margin: 0 0 12px; font-size: 1.2rem; color: #ffb56b; }
+  .section p, .section li { line-height: 1.6; }
+  .list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  .list li { background: rgba(255,144,0,.05); padding: 14px 16px; border-radius: 14px; border: 1px solid rgba(255,144,0,.12); }
+  @media print { body { background: white; color: black; } .card { background: white; border-color: #ccc; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="card">
+    <div class="header">
+      <div>
+        <h1>Wasteland Survival Verdict</h1>
+        <p>${escapeHtml(result.scenario.label)} · ${escapeHtml(result.companion ? result.companion.label : "No companion")}</p>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:4rem;font-weight:700;color:#ffb56b;">${result.finalChance}%</div>
+        <div style="margin-top:8px;font-size:1rem;">${escapeHtml(result.tier)}</div>
+      </div>
+    </div>
+    <div class="metrics">
+      <div class="metric"><strong>${escapeHtml(result.highestStat.label)} ${this.state.stats[result.highestStat.id]}</strong><div>Strongest trait</div></div>
+      <div class="metric"><strong>${escapeHtml(result.lowestStat.label)} ${this.state.stats[result.lowestStat.id]}</strong><div>Biggest weakness</div></div>
+      <div class="metric"><strong>${escapeHtml(result.lifespan.text)}</strong><div>Projected lifespan</div></div>
+    </div>
+    <div class="section">
+      <h2>Summary</h2>
+      <p>${escapeHtml(result.verdict)}</p>
+    </div>
+    <div class="section">
+      <h2>Key stats</h2>
+      <ul class="list">
+        ${SPECIAL_STATS.map((stat) => `<li><strong>${stat.label}</strong>: ${this.state.stats[stat.id]}</li>`).join("")}
+      </ul>
+    </div>
+    <div class="section">
+      <h2>Cause of failure</h2>
+      <ul class="list">
+        ${result.deathBreakdown.map((slice) => `<li><strong>${slice.percentage}%</strong> ${escapeHtml(slice.label)}</li>`).join("")}
+      </ul>
+    </div>
+    <div class="section">
+      <h2>Recommendations</h2>
+      <p>${escapeHtml(result.verdict.split("Recommendation:").pop().trim())}</p>
+    </div>
+  </div>
+</div>
+<script>window.onload = () => { window.print(); };</script>
+</body>
+</html>`;
+      const popup = globalScope.open("", "_blank");
+      if (!popup) {
+        this.patchState({ flash: "Popup blocked. Allow popups to save the PDF." });
         return;
       }
-      const accent = this.config.accentColor || DEFAULT_CONFIG.accentColor;
-      const gradient = ctx.createLinearGradient(0, 0, 1200, 630);
-      gradient.addColorStop(0, "#120b03");
-      gradient.addColorStop(0.55, "#251406");
-      gradient.addColorStop(1, "#080502");
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, 1200, 630);
-      ctx.strokeStyle = "rgba(255,144,0,.35)";
-      ctx.lineWidth = 2;
-      ctx.strokeRect(28, 28, 1144, 574);
-      ctx.fillStyle = accent;
-      ctx.font = "700 24px IBM Plex Mono, monospace";
-      ctx.fillText("WASTELAND SURVIVAL CALCULATOR", 60, 86);
-      ctx.fillStyle = "#ffd59f";
-      ctx.font = "700 94px IBM Plex Mono, monospace";
-      ctx.fillText(`${result.finalChance}%`, 60, 210);
-      ctx.font = "400 28px IBM Plex Mono, monospace";
-      ctx.fillText(`Tier: ${result.tier}`, 64, 258);
-      ctx.fillText(`Scenario: ${result.scenario.label}`, 64, 304);
-      ctx.fillText(`Companion: ${result.companion ? result.companion.label : "None"}`, 64, 348);
-      ctx.font = "400 25px IBM Plex Mono, monospace";
-      ctx.fillStyle = "#d0a56a";
-      wrapCanvasText(ctx, result.verdict, 60, 412, 690, 38);
-      ctx.fillStyle = "#ffd59f";
-      ctx.font = "700 28px IBM Plex Mono, monospace";
-      ctx.fillText("LIKELY FAILURE MODE", 800, 110);
-      ctx.font = "700 36px IBM Plex Mono, monospace";
-      ctx.fillStyle = accent;
-      ctx.fillText(result.topCause.label, 800, 158);
-      ctx.font = "400 24px IBM Plex Mono, monospace";
-      ctx.fillStyle = "#ffd59f";
-      ctx.fillText(`Projected lifespan: ${result.lifespan.text}`, 800, 216);
-      ctx.fillText(`Best lane: ${capitalize(result.strongestCategory)}`, 800, 260);
-      ctx.fillText(`Weak point: ${capitalize(result.weakestCategory)}`, 800, 304);
-      let chartStart = -Math.PI / 2;
-      const centerX = 970;
-      const centerY = 448;
-      const radius = 120;
-      for (const slice of result.deathBreakdown) {
-        const sliceAngle = (slice.percentage / 100) * Math.PI * 2;
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.arc(centerX, centerY, radius, chartStart, chartStart + sliceAngle);
-        ctx.closePath();
-        ctx.fillStyle = slice.color;
-        ctx.fill();
-        chartStart += sliceAngle;
-      }
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, 58, 0, Math.PI * 2);
-      ctx.fillStyle = "#120b03";
-      ctx.fill();
-      ctx.font = "700 24px IBM Plex Mono, monospace";
-      result.deathBreakdown.slice(0, 3).forEach((slice, index) => {
-        ctx.fillStyle = slice.color;
-        ctx.fillRect(800, 520 + index * 34, 18, 18);
-        ctx.fillStyle = "#ffd59f";
-        ctx.fillText(`${slice.percentage}% ${slice.label}`, 832, 536 + index * 34);
-      });
-      const link = document.createElement("a");
-      link.href = canvas.toDataURL("image/png");
-      link.download = `wasteland-survival-${slugify(result.scenario.label)}.png`;
-      link.click();
-      this.patchState({ flash: "Result card downloaded." });
+      popup.document.write(printHtml);
+      popup.document.close();
+      popup.focus();
+      this.patchState({ flash: "Print dialog opened. Choose Save as PDF." });
     }
 
     handleClick(event) {
@@ -1432,8 +1439,6 @@
           }
         }
         this.render();
-      } else if (action === "share") {
-        this.shareResult();
       } else if (action === "download-card") {
         this.downloadCard();
       } else if (action === "jump-math") {
@@ -1488,8 +1493,7 @@
             ${canGoBack ? `<button class="wc-button" data-action="back">Back</button>` : ""}
             ${stepFour ? `
               <button class="wc-button" data-action="reset">Try Another Build</button>
-              <button class="wc-button wc-button-primary" data-action="share">Share Result</button>
-              <button class="wc-button" data-action="download-card">Download Result Card</button>
+              <button class="wc-button wc-button-primary" data-action="download-card">Download PDF</button>
               ${this.config.showMathPanel ? `<button class="wc-button" data-action="jump-math">See How The Math Works</button>` : ""}
             ` : `<button class="wc-button wc-button-primary" data-action="next" ${canGoNext ? "" : "disabled"}>${escapeHtml(nextLabel)}</button>`}
           </div>
@@ -1642,7 +1646,7 @@
           </div>
         </section>
         <div class="wc-verdict">${escapeHtml(result.verdict)}</div>
-        ${this.config.showMathPanel ? `
+        ${this.config.showMathPanel && this.state.showMath ? `
           <div class="wc-math" data-math-panel>
             <h3>Show The Math</h3>
             <table><tbody>
